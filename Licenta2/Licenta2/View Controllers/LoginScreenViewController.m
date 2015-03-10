@@ -92,9 +92,9 @@
     NSString *path = [NSString stringWithFormat:@"username=%@&password=%@&deviceUdid=%@&deviceName=%@",_usernameTextField.text, [self encodeMediaUrl:_passwordTextField.text],uniqueIdentifier,[[UIDevice currentDevice] name]];
     NSString *serverUrl = @"";
     if (_isLogin) {
-        serverUrl = [serverUrl stringByAppendingString:@"Licenta/loginUser.php?"];
+        serverUrl = [serverUrl stringByAppendingString:@"loginUser.php?"];
     } else {
-        serverUrl = [serverUrl stringByAppendingString:@"Licenta/createUser.php?"];
+        serverUrl = [serverUrl stringByAppendingString:@"createUser.php?"];
     }
     serverUrl = [serverUrl stringByAppendingString:path];
     _downloadManager.callType = kLoginUser;
@@ -119,7 +119,7 @@
         if ([[[UIDevice currentDevice] name] isEqualToString:@"iPhone Simulator"]) {
             uniqueIdentifier = @"1234567890";
         }
-        NSString *path = [NSString stringWithFormat:@"Licenta/sendDeviceRequest.php?userId=%@&deviceUdid=%@",_userIdForDevice, uniqueIdentifier];
+        NSString *path = [NSString stringWithFormat:@"sendDeviceRequest.php?userId=%@&deviceUdid=%@",_userIdForDevice, uniqueIdentifier];
         _downloadManager.callType = kSendDeviceRequest;
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }
@@ -168,7 +168,7 @@
                 User *currentUser = [UserInfoModel retrieveCurrentUser];
                 
                 _downloadManager.callType = kCheckDeviceRequest;
-                NSString *path = [NSString stringWithFormat:@"Licenta/checkDeviceRequests.php?userId=%@",currentUser.userID];
+                NSString *path = [NSString stringWithFormat:@"checkDeviceRequests.php?userId=%@",currentUser.userID];
                 [self showHudWithText:@""];
                 [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
             }
@@ -218,7 +218,7 @@
 - (void)checkRequest {
     User *currentUser = [UserInfoModel retrieveCurrentUser];
     _downloadManager.callType = kCheckRequests;
-    NSString *path = [NSString stringWithFormat:@"Licenta/checkForRequests.php?userId=%@",currentUser.userID];
+    NSString *path = [NSString stringWithFormat:@"checkForRequests.php?userId=%@",currentUser.userID];
     [self showHudWithText:@""];
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
@@ -228,7 +228,7 @@
         _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
     }
     User *currentUser = [UserInfoModel retrieveCurrentUser];
-    NSString *path = [NSString stringWithFormat:@"Licenta/getAllDocuments.php?userId=%@&page=1",currentUser.userID];
+    NSString *path = [NSString stringWithFormat:@"getAllDocuments.php?userId=%@&page=1",currentUser.userID];
     _downloadManager.callType = kGetDocuments;
     [self showHudWithText:@""];
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];

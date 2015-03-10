@@ -58,7 +58,7 @@
             _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
         }
         NSString *selectedField = [[_lastConflict objectForKey:@"sectionContent"] objectAtIndex:[[_lastConflict objectForKey:@"isSelected"] integerValue]];
-        NSString *path = [NSString stringWithFormat:@"Licenta/resolveConflict.php?documentName=%@&timeStamp=%@&%@=%@",_docName,_docTimeStamp,[_lastConflict objectForKey:@"sectionName"],selectedField];
+        NSString *path = [NSString stringWithFormat:@"resolveConflict.php?documentName=%@&timeStamp=%@&%@=%@",_docName,_docTimeStamp,[_lastConflict objectForKey:@"sectionName"],selectedField];
         [self showHudWithText:@""];
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }

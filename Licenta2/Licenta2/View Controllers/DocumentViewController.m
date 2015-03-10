@@ -152,7 +152,7 @@
     NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970];
     NSString *stringInterval = [NSString stringWithFormat:@"%f",timeStamp];
     NSString *lastTimeStamp = [[stringInterval componentsSeparatedByString:@"."] firstObject];
-    NSString *path = [NSString stringWithFormat:@"Licenta/updateDocument.php?documentName=%@%@&timeStamp=%@&initialTimeStamp=%@",_docName,updatedSections,lastTimeStamp,_docTimeStamp];
+    NSString *path = [NSString stringWithFormat:@"updateDocument.php?documentName=%@%@&timeStamp=%@&initialTimeStamp=%@",_docName,updatedSections,lastTimeStamp,_docTimeStamp];
     [self showHudWithText:@""];
     _downloadManager.callType = kUpdateDocument;
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
@@ -364,7 +364,7 @@
         }
         _downloadManager.callType = kSendRequest;
         User *currentUser = [UserInfoModel retrieveCurrentUser];
-        NSString *path = [NSString stringWithFormat:@"Licenta/sendRequest.php?createdBy=%@&userId=%@&documentId=%@",_createdBy,currentUser.userID,_documentId];
+        NSString *path = [NSString stringWithFormat:@"sendRequest.php?createdBy=%@&userId=%@&documentId=%@",_createdBy,currentUser.userID,_documentId];
         [self showHudWithText:@""];
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }

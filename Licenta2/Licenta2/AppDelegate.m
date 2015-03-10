@@ -47,14 +47,6 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    //    if (!_downloadManager) {
-    //        _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
-    //    }
-    //    _downloadManager.callType = kLogout;
-    //    User *currentUser = [UserInfoModel retrieveCurrentUser];
-    //    NSString *path = [NSString stringWithFormat:@"Licenta/logoutUser.php?userId=%@",currentUser.userID];
-    //    [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
-    
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     // Saves changes in the application's managed object context before the application terminates.
     [self saveContext];

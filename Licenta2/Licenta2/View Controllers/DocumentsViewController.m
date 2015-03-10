@@ -80,7 +80,7 @@
     }
     _downloadManager.callType = kGetUsersDocuments;
     User *currentUser = [UserInfoModel retrieveCurrentUser];
-    NSString *path = [NSString stringWithFormat:@"Licenta/getDocumentForUser.php?userId=%@&page=1",currentUser.userID];
+    NSString *path = [NSString stringWithFormat:@"getDocumentForUser.php?userId=%@&page=1",currentUser.userID];
     [self showHudWithText:@""];
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
@@ -91,7 +91,7 @@
     }
     _downloadManager.callType = kGetUsers;
     User *currentUser = [UserInfoModel retrieveCurrentUser];
-    NSString *path = [NSString stringWithFormat:@"Licenta/getUsers.php?userId=%@&page=1",currentUser.userID];
+    NSString *path = [NSString stringWithFormat:@"getUsers.php?userId=%@&page=1",currentUser.userID];
     [self showHudWithText:@""];
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
@@ -118,7 +118,7 @@
         }
         _downloadManager.callType = kGetMoreDocuments;
         User *currentUser = [UserInfoModel retrieveCurrentUser];
-        NSString *path = [NSString stringWithFormat:@"Licenta/getAllDocuments.php?userId=%@&page=%ld",currentUser.userID, _pageNumber++];
+        NSString *path = [NSString stringWithFormat:@"getAllDocuments.php?userId=%@&page=%ld",currentUser.userID, _pageNumber++];
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }
     
@@ -136,7 +136,7 @@
         if (!_downloadManager) {
             _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
         }
-        NSString *path = [NSString stringWithFormat:@"Licenta/getDocument.php?documentName=%@",_docDetails[@"documentName"]];
+        NSString *path = [NSString stringWithFormat:@"getDocument.php?documentName=%@",_docDetails[@"documentName"]];
         _downloadManager.callType = kGetDocument;
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
         [self showHudWithText:@""];
@@ -255,7 +255,7 @@
             _downloadManager.callType = kDeleteDocument;
             User *currentUser = [UserInfoModel retrieveCurrentUser];
             _deletedDocument = _documents[_deletedIndexPath.row];
-            NSString *path = [NSString stringWithFormat:@"Licenta/deleteDocument.php?userId=%@&documentId=%@",currentUser.userID,_deletedDocument[@"documentId"]];
+            NSString *path = [NSString stringWithFormat:@"deleteDocument.php?userId=%@&documentId=%@",currentUser.userID,_deletedDocument[@"documentId"]];
             [self showHudWithText:@""];
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
         } else if (alertView.tag == kSendRequestTag) {
@@ -264,7 +264,7 @@
             }
             _downloadManager.callType = kSendRequest;
             User *currentUser = [UserInfoModel retrieveCurrentUser];
-            NSString *path = [NSString stringWithFormat:@"Licenta/sendRequest.php?createdBy=%@&userId=%@&documentId=%@",_docDetails[@"createdBy"],currentUser.userID,_docDetails[@"documentId"]];
+            NSString *path = [NSString stringWithFormat:@"sendRequest.php?createdBy=%@&userId=%@&documentId=%@",_docDetails[@"createdBy"],currentUser.userID,_docDetails[@"documentId"]];
             [self showHudWithText:@""];
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
         }
@@ -282,7 +282,7 @@
     _downloadManager.callType = kSearchDocuments;
     User *currentUser = [UserInfoModel retrieveCurrentUser];
     [self showHudWithText:@""];
-    NSString *path = [NSString stringWithFormat:@"Licenta/getDocumentsByName.php?userId=%@&docName=%@",currentUser.userID,searchBar.text];
+    NSString *path = [NSString stringWithFormat:@"getDocumentsByName.php?userId=%@&docName=%@",currentUser.userID,searchBar.text];
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
 

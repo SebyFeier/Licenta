@@ -107,7 +107,7 @@
             }
             _downloadManager.callType = kGetMoreDocuments;
             User *currentUser = [UserInfoModel retrieveCurrentUser];
-            NSString *path = [NSString stringWithFormat:@"Licenta/getDocumentForUser.php?userId=%@&page=%ld",currentUser.userID,_pageNumber++];
+            NSString *path = [NSString stringWithFormat:@"getDocumentForUser.php?userId=%@&page=%ld",currentUser.userID,_pageNumber++];
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
         }
         return documentCell;
@@ -122,7 +122,7 @@
     }
     _downloadManager.callType = kLogout;
     User *currentUser = [UserInfoModel retrieveCurrentUser];
-    NSString *path = [NSString stringWithFormat:@"Licenta/logoutUser.php?userId=%@",currentUser.userID];
+    NSString *path = [NSString stringWithFormat:@"logoutUser.php?userId=%@",currentUser.userID];
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
 
@@ -134,7 +134,7 @@
             _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
         }
         _downloadManager.callType = kGetUserWithAccess;
-        NSString *path = [NSString stringWithFormat:@"Licenta/getUserAndPermissions.php?documentId=%@&page=1",_selectedDocument[@"documentId"]];
+        NSString *path = [NSString stringWithFormat:@"getUserAndPermissions.php?documentId=%@&page=1",_selectedDocument[@"documentId"]];
         [self showHudWithText:@""];
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }

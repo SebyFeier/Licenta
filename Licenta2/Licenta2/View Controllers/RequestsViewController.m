@@ -125,7 +125,7 @@
                 _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
             }
             _downloadManager.callType = kGivePermissions;
-            NSString *path = [NSString stringWithFormat:@"Licenta/removeRequests.php?documentId=%@&user=%@&permission=%@", documentIds, users, permissions];
+            NSString *path = [NSString stringWithFormat:@"removeRequests.php?documentId=%@&user=%@&permission=%@", documentIds, users, permissions];
             [self showHudWithText:@""];
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
         } else if (_requestType == DeviceRequest) {
@@ -141,7 +141,7 @@
                 _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
             }
             _downloadManager.callType = kGiveDeviceApprovals;
-            NSString *path = [NSString stringWithFormat:@"Licenta/removeDeviceRequest.php?userId=%@&deviceUdid=%@&isApproved=%@",userId, udids, approvals];
+            NSString *path = [NSString stringWithFormat:@"removeDeviceRequest.php?userId=%@&deviceUdid=%@&isApproved=%@",userId, udids, approvals];
             [self showHudWithText:@""];
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
         }

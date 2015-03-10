@@ -77,7 +77,7 @@
         _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
     }
     _downloadManager.callType = kGivePermissions;
-    NSString *path = [NSString stringWithFormat:@"Licenta/updatePermissions.php?documentId=%@&user=%@&permission=%@", _documentID, users, permissions];
+    NSString *path = [NSString stringWithFormat:@"updatePermissions.php?documentId=%@&user=%@&permission=%@", _documentID, users, permissions];
     [self showHudWithText:@""];
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
@@ -137,7 +137,7 @@
             _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
         }
         _downloadManager.callType = kGetMoreUsers;
-        NSString *path = [NSString stringWithFormat:@"Licenta/getUserAndPermissions.php?documentId=%@&page=%ld",_documentID,_pageNumber++];
+        NSString *path = [NSString stringWithFormat:@"getUserAndPermissions.php?documentId=%@&page=%ld",_documentID,_pageNumber++];
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }
     return cell;

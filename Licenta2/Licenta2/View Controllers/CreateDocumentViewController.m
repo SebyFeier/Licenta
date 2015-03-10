@@ -47,7 +47,7 @@
             _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
         }
         User *currentUser = [UserInfoModel retrieveCurrentUser];
-        NSString *path = [NSString stringWithFormat:@"Licenta/insertDocument.php?documentName=%@&createdBy=%@",_documentNameLabel.text,currentUser.userID];
+        NSString *path = [NSString stringWithFormat:@"insertDocument.php?documentName=%@&createdBy=%@",_documentNameLabel.text,currentUser.userID];
         _downloadManager.callType = kSaveDocument;
         [self showHudWithText:@""];
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
@@ -97,7 +97,7 @@
                 _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
             }
             _downloadManager.callType = kGivePermissions;
-            NSString *path = [NSString stringWithFormat:@"Licenta/givePermissions.php?documentId=%@&user=%@&permission=%@",_newDocument[@"documentId"],users, permissions];
+            NSString *path = [NSString stringWithFormat:@"givePermissions.php?documentId=%@&user=%@&permission=%@",_newDocument[@"documentId"],users, permissions];
             [self showHudWithText:@""];
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 //                    [self dismissViewControllerAnimated:YES completion:^{
@@ -166,7 +166,7 @@
         }
         _downloadManager.callType = kGetMoreUsers;
         User *currentUser = [UserInfoModel retrieveCurrentUser];
-        NSString *path = [NSString stringWithFormat:@"Licenta/getUsers.php?userId=%@&page=%ld",currentUser.userID,_pageNumber++];
+        NSString *path = [NSString stringWithFormat:@"getUsers.php?userId=%@&page=%ld",currentUser.userID,_pageNumber++];
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }
     return cell;
