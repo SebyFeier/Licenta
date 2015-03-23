@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1BD5FB268626494C89BF642A /* libPods-Licenta2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 694D1548E4A9C01CC3D0DC89 /* libPods-Licenta2.a */; };
+		F13442181ABF044900C19441 /* XMLReader.m in Sources */ = {isa = PBXBuildFile; fileRef = F13442171ABF044900C19441 /* XMLReader.m */; };
 		F13B5F721A967412009664B8 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = F13B5F421A967412009664B8 /* User.m */; };
 		F13B5F731A967412009664B8 /* UserInfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = F13B5F441A967412009664B8 /* UserInfoModel.m */; };
 		F13B5F741A967412009664B8 /* ConflictTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F13B5F471A967412009664B8 /* ConflictTableViewCell.m */; };
@@ -54,6 +55,8 @@
 		02EB5A46C8E7D996B470C50A /* Pods-Licenta2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Licenta2.release.xcconfig"; path = "Pods/Target Support Files/Pods-Licenta2/Pods-Licenta2.release.xcconfig"; sourceTree = "<group>"; };
 		694D1548E4A9C01CC3D0DC89 /* libPods-Licenta2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Licenta2.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABF2F12BB0E75DC67113D70C /* Pods-Licenta2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Licenta2.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Licenta2/Pods-Licenta2.debug.xcconfig"; sourceTree = "<group>"; };
+		F13442161ABF044900C19441 /* XMLReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLReader.h; sourceTree = "<group>"; };
+		F13442171ABF044900C19441 /* XMLReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLReader.m; sourceTree = "<group>"; };
 		F13B5F411A967412009664B8 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
 		F13B5F421A967412009664B8 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		F13B5F431A967412009664B8 /* UserInfoModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserInfoModel.h; sourceTree = "<group>"; };
@@ -183,6 +186,8 @@
 		F13B5F581A967412009664B8 /* Custom Classes */ = {
 			isa = PBXGroup;
 			children = (
+				F13442161ABF044900C19441 /* XMLReader.h */,
+				F13442171ABF044900C19441 /* XMLReader.m */,
 				F13B5F591A967412009664B8 /* Constants.h */,
 				F13B5F5A1A967412009664B8 /* DownloadManager.h */,
 				F13B5F5B1A967412009664B8 /* DownloadManager.m */,
@@ -443,6 +448,7 @@
 				F13B5F7F1A967412009664B8 /* UIViewController+ProgressHud.m in Sources */,
 				F13B5F861A967412009664B8 /* RequestsViewController.m in Sources */,
 				F13B5F761A967412009664B8 /* DocumentListTableViewCell.m in Sources */,
+				F13442181ABF044900C19441 /* XMLReader.m in Sources */,
 				F13B5F811A967412009664B8 /* CreateDocumentViewController.m in Sources */,
 				F13B5F7E1A967412009664B8 /* NSDictionary+JSON.m in Sources */,
 				F13B5F7B1A967412009664B8 /* RequestTableViewCell.m in Sources */,

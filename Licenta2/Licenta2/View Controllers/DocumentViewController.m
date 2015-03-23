@@ -14,6 +14,7 @@
 #import "UIViewController+ProgressHud.h"
 #import "User.h"
 #import "UserInfoModel.h"
+#import "XMLReader.h"
 
 #define kSendRequest @"Send Request"
 #define kUpdateDocument @"Update Document"
@@ -34,6 +35,7 @@
     BOOL _showTable;
     NSTimer *_timer;
     BOOL _isTyping;
+    id _sectionText;
 }
 
 - (void)viewDidLoad {
@@ -91,21 +93,22 @@
             _createdBy = _documentDetails[@"createdBy"];
         } else if ([key isEqualToString:@"documentId"]) {
             _documentId = _documentDetails[@"documentId"];
-        } else if ([key rangeOfString:@"_modif"].location == NSNotFound) {
-            NSString *sectionName = key;
-            NSString *sectionText = [_documentDetails objectForKey:key];
-            if ([sectionText length]) {
-                NSMutableDictionary *section = [NSMutableDictionary dictionaryWithObjectsAndKeys:sectionName,@"sectionName",sectionText,@"sectionText",@(0),@"isModified", nil];
-                [_docDetails addObject:section];
+        } else if ([key isEqualToString:@"sectionText"]) {
+            NSError *error;
+            NSDictionary *sections = [XMLReader dictionaryForXMLString:_documentDetails[@"sectionText"] error:&error];
+            _sectionText = sections[@"sections"][@"section"];
+            if ([_sectionText isKindOfClass:[NSArray class]]) {
+                for (NSMutableDictionary *section in _sectionText) {
+                    [section setObject:@(0) forKey:@"isModified"];
+                }
+            } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
+                [_sectionText setObject:@(0) forKey:@"isModified"];
             }
         }
     }
     self.navigationItem.title = _docName;
-    [self startTimer];
+//    [self startTimer];
     _showTable = YES;
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"sectionName" ascending:YES];
-    NSArray *sortDescriptors = [NSArray arrayWithObject:sort];
-    _docDetails = [NSMutableArray arrayWithArray:[_docDetails sortedArrayUsingDescriptors:sortDescriptors]];
     [_messageView removeFromSuperview];
     [_messageLabel removeFromSuperview];
     _tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
@@ -205,9 +208,15 @@
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
-    NSMutableDictionary *section = [_docDetails objectAtIndex:textView.tag];
-    [section setObject:textView.text forKey:@"sectionText"];
-    [_docDetails replaceObjectAtIndex:textView.tag withObject:section];
+    if ([_sectionText isKindOfClass:[NSArray class]]) {
+        NSMutableDictionary *section = _sectionText[textView.tag];
+        NSMutableDictionary *value = [NSMutableDictionary dictionaryWithDictionary:section[@"value"]];
+        [value setObject:textView.text forKey:@"text"];
+        [section setObject:value forKey:@"value"];
+        [_sectionText replaceObjectAtIndex:textView.tag withObject:section];
+    } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
+        
+    }
 }
 
 - (BOOL)rectVisible: (CGRect)rect {
@@ -241,12 +250,22 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row != _docDetails.count) {
-        NSDictionary *sectionDict = [ _docDetails objectAtIndex:indexPath.row];
-        NSAttributedString *text = [[NSAttributedString alloc] initWithString:[sectionDict objectForKey:@"sectionText"]];
-        CGFloat height = [self textViewHeightForAttributedText:text andWidth:170];
-        return (height > 30?height + 50:44);
+    NSAttributedString *attributtedText = nil;
+    if ([_sectionText isKindOfClass:[NSArray class]]) {
+        if (indexPath.row != [_sectionText count]) {
+            NSDictionary *sectionDict = [ _sectionText objectAtIndex:indexPath.row];
+            if (sectionDict[@"value"]) {
+                if (sectionDict[@"value"][@"text"]) {
+                    attributtedText = [[NSAttributedString alloc] initWithString:[sectionDict objectForKey:@"value"][@"text"]];
+                } else {
+                    attributtedText = [[NSAttributedString alloc] initWithString:@"a"];
+                }
+            }
+            CGFloat height = [self textViewHeightForAttributedText:attributtedText andWidth:170];
+            return (height > 30?height + 50:44);
+        }
     }
+    
     return 44;
 }
 
@@ -255,58 +274,112 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (_showTable) {
-        return (_docDetails.count?_docDetails.count + (_canEdit?1:0):1);
+        if ([_sectionText isKindOfClass:[NSDictionary class]]) {
+            return 2;
+        } else if ([_sectionText isKindOfClass:[NSArray class]]) {
+            return ([_sectionText count]?[_sectionText count] + (_canEdit?1:0):1);
+        }
     } else {
         return 0;
     }
+    return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger row = indexPath.row;
-    if (row != _docDetails.count) {
-        DocumentTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"documentCustomCell"];
-        if (!cell) {
-            cell = [[DocumentTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"documentCustomCell"];
-        }
-        
-        [cell canEdit:_canEdit];
-        
-        cell.delegate = self;
-        cell.selectedIndexPath = indexPath;
-        cell.textView.tag = indexPath.row;
-        NSDictionary *sectionDict = [ _docDetails objectAtIndex:indexPath.row];
-        cell.textView.text = [sectionDict objectForKey:@"sectionText"];
-        cell.textView.delegate = self;
-        if (!_isTyping) {
-            cell.typingImage.hidden = YES;
+    if ([_sectionText isKindOfClass:[NSDictionary class]]) {
+        if (row == 0) {
+            DocumentTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"documentCustomCell"];
+            if (!cell) {
+                cell = [[DocumentTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"documentCustomCell"];
+            }
+            [cell canEdit:_canEdit];
+            cell.delegate = self;
+            cell.selectedIndexPath = indexPath;
+            cell.textView.tag = indexPath.row;
+            
+            cell.textView.text = _sectionText[@"value"][@"text"];
+            cell.textView.delegate = self;
+            if (!_isTyping) {
+                cell.typingImage.hidden = YES;
+            } else {
+                cell.typingImage.hidden = NO;
+            }
+            return cell;
         } else {
-            cell.typingImage.hidden = NO;
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"documentTableViewCell"];
+            if (!cell) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"documentTableViewCell"];
+            }
+            cell.textLabel.text = @"Create new section";
+            return cell;
         }
-        return cell;
-    } else {
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"documentTableViewCell"];
-        if (!cell) {
-            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"documentTableViewCell"];
+    } else if ([_sectionText isKindOfClass:[NSArray class]]) {
+        if (row != [_sectionText count]) {
+            DocumentTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"documentCustomCell"];
+            if (!cell) {
+                cell = [[DocumentTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"documentCustomCell"];
+            }
+            
+            [cell canEdit:_canEdit];
+            
+            cell.delegate = self;
+            cell.selectedIndexPath = indexPath;
+            cell.textView.tag = indexPath.row;
+//            NSDictionary *sectionDict = [ _docDetails objectAtIndex:indexPath.row];
+            cell.textView.text = _sectionText[indexPath.row][@"value"][@"text"];
+            cell.textView.delegate = self;
+            if (!_isTyping) {
+                cell.typingImage.hidden = YES;
+            } else {
+                cell.typingImage.hidden = NO;
+            }
+            return cell;
+        } else {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"documentTableViewCell"];
+            if (!cell) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"documentTableViewCell"];
+            }
+            cell.textLabel.text = @"Create new section";
+            return cell;
+
         }
-        cell.textLabel.text = @"Create new section";
-        return cell;
     }
-}
+    return nil;}
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    if (indexPath.row == _docDetails.count) {
-        [_docDetails addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"section%lu",_docDetails.count + 1],@"sectionName",@"",@"sectionText",@(1), @"isModified", nil]];
+    if ([_sectionText isKindOfClass:[NSArray class]]) {
+        if (indexPath.row == [_sectionText count]) {
+            NSMutableDictionary *nameDict = [NSMutableDictionary dictionaryWithObject:[NSString stringWithFormat:@"section%lu",[_sectionText count] + 1] forKey:@"text"];
+            NSMutableDictionary *timeStampDict = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
+            NSMutableDictionary *valueDict = [NSMutableDictionary dictionaryWithObject:@"" forKey:@"text"];
+            NSMutableDictionary *newSection = [NSMutableDictionary dictionaryWithObjectsAndKeys:nameDict,@"name",timeStampDict,@"timestamp",valueDict,@"value",@(0),@"isModified", nil];
+            [_sectionText addObject:newSection];
+            [_tableView reloadData];
+        }
+    } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *sectionText = _sectionText;
+        _sectionText = nil;
+        _sectionText = [[NSMutableArray alloc] initWithObjects:sectionText, nil];
+        
+        NSDictionary *nameDict = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"section%lu",[_sectionText count] + 1] forKey:@"text"];
+        NSDictionary *timeStampDict = [NSDictionary dictionaryWithObject:@(0) forKey:@"text"];
+        NSDictionary *valueDict = [NSDictionary dictionaryWithObject:@"" forKey:@"text"];
+        NSMutableDictionary *newSection = [NSMutableDictionary dictionaryWithObjectsAndKeys:nameDict,@"name",timeStampDict,@"timestamp",valueDict,@"value",@(0),@"isModified", nil];
+        [_sectionText addObject:newSection];
         [_tableView reloadData];
     }
 }
 
 - (void)selectionButtonTapped:(NSIndexPath *)indexPath canEdit:(BOOL)canEdit {
     if (canEdit) {
-        NSMutableDictionary *section = [_docDetails objectAtIndex:indexPath.row];
-        [section setObject:@(1) forKey:@"isModified"];
-        [_docDetails replaceObjectAtIndex:indexPath.row withObject:section];
+        if ([_sectionText isKindOfClass:[NSArray class]]) {
+            NSMutableDictionary *section = [_sectionText objectAtIndex:indexPath.row];
+            [section setObject:@(1) forKey:@"isModified"];
+            [_sectionText replaceObjectAtIndex:indexPath.row withObject:section];
+        }
     } else {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:@"You do not have permission to edit this document. Send request?" delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
         [alertView show];

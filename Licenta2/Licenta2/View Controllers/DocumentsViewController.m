@@ -16,6 +16,7 @@
 #import "UserInfoModel.h"
 #import "OptionsViewController.h"
 #import "UIViewController+ProgressHud.h"
+#import "XMLReader.h"
 
 #define kGetDocument @"Get Document"
 #define kGetUsers @"Get Users"
@@ -163,6 +164,7 @@
         responseInfo = [[NSString alloc] initWithData:responseInfo encoding:NSUTF8StringEncoding];
     }
     NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
+
     if ([downloadManager.callType isEqualToString:kGetDocument]) {
         DocumentViewController *documentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"documentViewControllerID"];
         NSDictionary *docDetails = [[responseDict objectForKey:@"documents"] firstObject];
