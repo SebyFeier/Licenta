@@ -61,14 +61,13 @@
 */
 
 - (NSMutableString *)encodeMediaUrl:(NSString *)mediaUrl {
-    NSMutableString *output = [NSMutableString stringWithString:@""];
     
     const char *ptr = [mediaUrl UTF8String];
     unsigned char md5Buffer[CC_MD5_DIGEST_LENGTH];
     
     CC_MD5(ptr, (CC_LONG)strlen(ptr), md5Buffer);
     
-    output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
     for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
         [output appendFormat:@"%02x",md5Buffer[i]];
     return output;

@@ -15,6 +15,7 @@
 #import "User.h"
 #import "UserInfoModel.h"
 #import "XMLReader.h"
+#import "NSString+JSON.h"
 
 #define kSendRequest @"Send Request"
 #define kUpdateDocument @"Update Document"
@@ -99,10 +100,16 @@
             _sectionText = sections[@"sections"][@"section"];
             if ([_sectionText isKindOfClass:[NSArray class]]) {
                 for (NSMutableDictionary *section in _sectionText) {
-                    [section setObject:@(0) forKey:@"isModified"];
+//
+//                    NSMutableDictionary *isModified = section[@"isModified"];
+                    NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
+                    [section setObject:isModified forKey:@"isModified"];
                 }
             } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
-                [_sectionText setObject:@(0) forKey:@"isModified"];
+//                NSMutableDictionary *isModified = _sectionText[@"isModified"];
+//                [isModified setObject:@(0) forKey:@"text"];
+                NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
+                [_sectionText setObject:isModified forKey:@"isModified"];
             }
         }
     }
@@ -131,6 +138,7 @@
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
     [self stopTimer];
 }
 
@@ -141,24 +149,37 @@
 
 - (void)saveButtonTapped:(id)sender {
     [self.view endEditing:YES];
-    NSLog(@"%@",_docDetails);
-    if (!_downloadManager) {
-        _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
-    }
-    NSString *updatedSections = @"";
-    for (NSDictionary *section in _docDetails) {
-        if ([[section objectForKey:@"isModified"] boolValue]) {
-            updatedSections = [updatedSections stringByAppendingString:[NSString stringWithFormat:@"&%@=%@",[section objectForKey:@"sectionName"],[section objectForKey:@"sectionText"]]];
+//    NSLog(@"%@",_docDetails);
+    
+    //TODO: THIS HAS TO BE REMOVED
+    NSString *type = @"";
+    id updatedSections = nil;
+    if ([_sectionText isKindOfClass:[NSArray class]]) {
+        type = @"array";
+        updatedSections = [[NSMutableArray alloc] init];
+        for (NSDictionary *section in _sectionText) {
+            if ([section[@"isModified"][@"text"] boolValue]) {
+                [updatedSections addObject:section];
+            }
+        }
+    } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
+        type = @"dictionary";
+        if ([_sectionText[@"isModified"][@"text"] boolValue]) {
+            updatedSections = _sectionText;
         }
     }
-    
-    NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970];
-    NSString *stringInterval = [NSString stringWithFormat:@"%f",timeStamp];
-    NSString *lastTimeStamp = [[stringInterval componentsSeparatedByString:@"."] firstObject];
-    NSString *path = [NSString stringWithFormat:@"updateDocument.php?documentName=%@%@&timeStamp=%@&initialTimeStamp=%@",_docName,updatedSections,lastTimeStamp,_docTimeStamp];
-    [self showHudWithText:@""];
-    _downloadManager.callType = kUpdateDocument;
-    [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+    if (updatedSections || [updatedSections count]) {
+        NSString *json = [NSString createJSONFromObject:updatedSections];
+        if (!_downloadManager) {
+            _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+        }
+        NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970];
+        NSString *stringInterval = [NSString stringWithFormat:@"%f",timeStamp];
+        NSString *lastTimeStamp = [[stringInterval componentsSeparatedByString:@"."] firstObject];
+        NSString *path = [NSString stringWithFormat:@"updateDocument.php?documentName=%@&timeStamp=%@&initialTimeStamp=%@&json=%@&type=%@",_docName, lastTimeStamp, _docTimeStamp, json, type];
+        _downloadManager.callType = kUpdateDocument;
+        [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+    }
 }
 
 - (void)backButtonTapped:(id)sender {
@@ -215,7 +236,9 @@
         [section setObject:value forKey:@"value"];
         [_sectionText replaceObjectAtIndex:textView.tag withObject:section];
     } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
-        
+        NSMutableDictionary *value = _sectionText[@"value"];
+        [value setObject:textView.text forKey:@"text"];
+        [_sectionText setObject:value forKey:@"value"];
     }
 }
 
@@ -355,7 +378,8 @@
             NSMutableDictionary *nameDict = [NSMutableDictionary dictionaryWithObject:[NSString stringWithFormat:@"section%lu",[_sectionText count] + 1] forKey:@"text"];
             NSMutableDictionary *timeStampDict = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
             NSMutableDictionary *valueDict = [NSMutableDictionary dictionaryWithObject:@"" forKey:@"text"];
-            NSMutableDictionary *newSection = [NSMutableDictionary dictionaryWithObjectsAndKeys:nameDict,@"name",timeStampDict,@"timestamp",valueDict,@"value",@(0),@"isModified", nil];
+            NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
+            NSMutableDictionary *newSection = [NSMutableDictionary dictionaryWithObjectsAndKeys:nameDict,@"name",timeStampDict,@"timestamp",valueDict,@"value",isModified,@"isModified", nil];
             [_sectionText addObject:newSection];
             [_tableView reloadData];
         }
@@ -367,7 +391,8 @@
         NSDictionary *nameDict = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"section%lu",[_sectionText count] + 1] forKey:@"text"];
         NSDictionary *timeStampDict = [NSDictionary dictionaryWithObject:@(0) forKey:@"text"];
         NSDictionary *valueDict = [NSDictionary dictionaryWithObject:@"" forKey:@"text"];
-        NSMutableDictionary *newSection = [NSMutableDictionary dictionaryWithObjectsAndKeys:nameDict,@"name",timeStampDict,@"timestamp",valueDict,@"value",@(0),@"isModified", nil];
+        NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
+        NSMutableDictionary *newSection = [NSMutableDictionary dictionaryWithObjectsAndKeys:nameDict,@"name",timeStampDict,@"timestamp",valueDict,@"value",isModified,@"isModified", nil];
         [_sectionText addObject:newSection];
         [_tableView reloadData];
     }
@@ -377,8 +402,17 @@
     if (canEdit) {
         if ([_sectionText isKindOfClass:[NSArray class]]) {
             NSMutableDictionary *section = [_sectionText objectAtIndex:indexPath.row];
-            [section setObject:@(1) forKey:@"isModified"];
+//            [section setObject:@(1) forKey:@"isModified"];
+            NSMutableDictionary *isModified = section[@"isModified"];
+            [isModified setObject:@(1) forKey:@"text"];
+            [section setObject:isModified forKey:@"isModified"];
             [_sectionText replaceObjectAtIndex:indexPath.row withObject:section];
+            [_sectionText replaceObjectAtIndex:indexPath.row withObject:section];
+        } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
+//            [_sectionText setObject:@(1) forKey:@"isModified"];
+            NSMutableDictionary *isModified = _sectionText[@"isModified"];
+            [isModified setObject:@(1) forKey:@"text"];
+            [_sectionText setObject:isModified forKey:@"isModified"];
         }
     } else {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:@"You do not have permission to edit this document. Send request?" delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
@@ -398,36 +432,37 @@
     if ([responseInfo isKindOfClass:[NSData class]]){
         responseInfo = [[NSString alloc] initWithData:responseInfo encoding:NSUTF8StringEncoding];
     }
+    NSLog(@"%@",responseInfo);
     NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
-    if ([downloadManager.callType isEqualToString:kUpdateDocument]) {
-        NSMutableArray *conflictedSections = [[NSMutableArray alloc] init];
-        if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
-            [self.navigationController popViewControllerAnimated:YES];
-            return;
-        } else {
-            for (NSString *key in [responseDict allKeys]) {
-                NSMutableDictionary *section = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"sectionName",[responseDict objectForKey:key],@"sectionContent", nil];
-                [conflictedSections addObject:section];
-            }
-        }
-        NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"sectionName" ascending:NO];
-        NSArray *sortDescriptors = [NSArray arrayWithObject:sort];
-        conflictedSections = [NSMutableArray arrayWithArray:[conflictedSections sortedArrayUsingDescriptors:sortDescriptors]];
-        ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
-        conflictViewController.conflictedSections = conflictedSections;
-        conflictViewController.docTimeStamp = _docTimeStamp;
-        conflictViewController.docName = _docName;
-        conflictViewController.parent = _parent;
-        [self.navigationController pushViewController:conflictViewController animated:YES];
-    } else if ([downloadManager.callType isEqualToString:kSendRequest]) {
-        if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"OK" message:@"Request sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-            [alert show];
-        } else {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Request already sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-            [alert show];
-        }
-    }
+//    if ([downloadManager.callType isEqualToString:kUpdateDocument]) {
+//        NSMutableArray *conflictedSections = [[NSMutableArray alloc] init];
+//        if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
+//            [self.navigationController popViewControllerAnimated:YES];
+//            return;
+//        } else {
+//            for (NSString *key in [responseDict allKeys]) {
+//                NSMutableDictionary *section = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"sectionName",[responseDict objectForKey:key],@"sectionContent", nil];
+//                [conflictedSections addObject:section];
+//            }
+//        }
+//        NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"sectionName" ascending:NO];
+//        NSArray *sortDescriptors = [NSArray arrayWithObject:sort];
+//        conflictedSections = [NSMutableArray arrayWithArray:[conflictedSections sortedArrayUsingDescriptors:sortDescriptors]];
+//        ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
+//        conflictViewController.conflictedSections = conflictedSections;
+//        conflictViewController.docTimeStamp = _docTimeStamp;
+//        conflictViewController.docName = _docName;
+//        conflictViewController.parent = _parent;
+//        [self.navigationController pushViewController:conflictViewController animated:YES];
+//    } else if ([downloadManager.callType isEqualToString:kSendRequest]) {
+//        if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
+//            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"OK" message:@"Request sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//            [alert show];
+//        } else {
+//            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Request already sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//            [alert show];
+//        }
+//    }
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {

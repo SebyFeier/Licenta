@@ -72,9 +72,9 @@
 
 - (void)downloadManager:(DownloadManager *)downloadManager didDownloadSuccessfullyWithInfo:(id)responseInfo {
     [self removeHud];
-    if ([responseInfo isKindOfClass:[NSData class]]){
-        responseInfo = [[NSString alloc] initWithData:responseInfo encoding:NSUTF8StringEncoding];
-    }
+//    if ([responseInfo isKindOfClass:[NSData class]]){
+//        responseInfo = [[NSString alloc] initWithData:responseInfo encoding:NSUTF8StringEncoding];
+//    }
 //    NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
     [_conflictedSections removeLastObject];
     _lastConflict = [_conflictedSections lastObject];
