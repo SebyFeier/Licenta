@@ -434,35 +434,40 @@
     }
     NSLog(@"%@",responseInfo);
     NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
-//    if ([downloadManager.callType isEqualToString:kUpdateDocument]) {
-//        NSMutableArray *conflictedSections = [[NSMutableArray alloc] init];
-//        if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
-//            [self.navigationController popViewControllerAnimated:YES];
-//            return;
-//        } else {
+    if ([downloadManager.callType isEqualToString:kUpdateDocument]) {
+        NSMutableArray *conflictedSections = [[NSMutableArray alloc] init];
+        if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
+            [self.navigationController popViewControllerAnimated:YES];
+            return;
+        } else {
+            NSError *error = nil;
+            NSDictionary *existingSection = [XMLReader dictionaryForXMLString:responseDict[@"existing"] error:&error];
+            NSDictionary *newSection = [XMLReader dictionaryForXMLString:responseDict[@"new"] error:&error];
 //            for (NSString *key in [responseDict allKeys]) {
 //                NSMutableDictionary *section = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"sectionName",[responseDict objectForKey:key],@"sectionContent", nil];
 //                [conflictedSections addObject:section];
 //            }
-//        }
+            [conflictedSections addObject:existingSection];
+            [conflictedSections addObject:newSection];
+        }
 //        NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"sectionName" ascending:NO];
 //        NSArray *sortDescriptors = [NSArray arrayWithObject:sort];
 //        conflictedSections = [NSMutableArray arrayWithArray:[conflictedSections sortedArrayUsingDescriptors:sortDescriptors]];
-//        ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
-//        conflictViewController.conflictedSections = conflictedSections;
-//        conflictViewController.docTimeStamp = _docTimeStamp;
-//        conflictViewController.docName = _docName;
-//        conflictViewController.parent = _parent;
-//        [self.navigationController pushViewController:conflictViewController animated:YES];
-//    } else if ([downloadManager.callType isEqualToString:kSendRequest]) {
-//        if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
-//            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"OK" message:@"Request sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-//            [alert show];
-//        } else {
-//            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Request already sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-//            [alert show];
-//        }
-//    }
+        ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
+        conflictViewController.conflictedSections = conflictedSections;
+        conflictViewController.docTimeStamp = _docTimeStamp;
+        conflictViewController.docName = _docName;
+        conflictViewController.parent = _parent;
+        [self.navigationController pushViewController:conflictViewController animated:YES];
+    } else if ([downloadManager.callType isEqualToString:kSendRequest]) {
+        if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"OK" message:@"Request sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [alert show];
+        } else {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Request already sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [alert show];
+        }
+    }
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
