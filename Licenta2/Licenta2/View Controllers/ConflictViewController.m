@@ -127,6 +127,8 @@
         _lastNewConflict = nil;
         _lastExistingConflict = nil;
     } else if ([_existingSection isKindOfClass:[NSArray class]] && [_newSection isKindOfClass:[NSArray class]]) {
+        [_existingSection removeLastObject];
+        [_newSection removeLastObject];
         _lastExistingConflict = [_existingSection lastObject];
         _lastNewConflict = [_newSection lastObject];
     }

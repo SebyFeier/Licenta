@@ -105,6 +105,9 @@
                     NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
                     [section setObject:isModified forKey:@"isModified"];
                 }
+                [_sectionText sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+                    return [obj1[@"name"][@"text"] caseInsensitiveCompare:obj2[@"name"][@"text"] ];
+                }];
             } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
 //                NSMutableDictionary *isModified = _sectionText[@"isModified"];
 //                [isModified setObject:@(0) forKey:@"text"];
@@ -435,30 +438,27 @@
     NSLog(@"%@",responseInfo);
     NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
     if ([downloadManager.callType isEqualToString:kUpdateDocument]) {
-        NSMutableArray *conflictedSections = [[NSMutableArray alloc] init];
         if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
             [self.navigationController popViewControllerAnimated:YES];
             return;
         } else {
+            [self.navigationController popViewControllerAnimated:YES];
+            return;
+            NSMutableArray *conflictedSections = [[NSMutableArray alloc] init];
             NSError *error = nil;
             NSDictionary *existingSection = [XMLReader dictionaryForXMLString:responseDict[@"existing"] error:&error];
             NSDictionary *newSection = [XMLReader dictionaryForXMLString:responseDict[@"new"] error:&error];
-//            for (NSString *key in [responseDict allKeys]) {
-//                NSMutableDictionary *section = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"sectionName",[responseDict objectForKey:key],@"sectionContent", nil];
-//                [conflictedSections addObject:section];
-//            }
-            [conflictedSections addObject:existingSection];
-            [conflictedSections addObject:newSection];
+            if (existingSection && newSection) {
+                [conflictedSections addObject:existingSection];
+                [conflictedSections addObject:newSection];
+                ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
+                conflictViewController.conflictedSections = conflictedSections;
+                conflictViewController.docTimeStamp = _docTimeStamp;
+                conflictViewController.docName = _docName;
+                conflictViewController.parent = _parent;
+                [self.navigationController pushViewController:conflictViewController animated:YES];
+            }
         }
-//        NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"sectionName" ascending:NO];
-//        NSArray *sortDescriptors = [NSArray arrayWithObject:sort];
-//        conflictedSections = [NSMutableArray arrayWithArray:[conflictedSections sortedArrayUsingDescriptors:sortDescriptors]];
-        ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
-        conflictViewController.conflictedSections = conflictedSections;
-        conflictViewController.docTimeStamp = _docTimeStamp;
-        conflictViewController.docName = _docName;
-        conflictViewController.parent = _parent;
-        [self.navigationController pushViewController:conflictViewController animated:YES];
     } else if ([downloadManager.callType isEqualToString:kSendRequest]) {
         if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"OK" message:@"Request sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
