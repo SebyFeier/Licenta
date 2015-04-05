@@ -30,8 +30,44 @@
 //    _lastConflict = [_conflictedSections lastObject];
 //    [_lastConflict setObject:@(3) forKey:@"isSelected"];
     if (_conflictedSections && [_conflictedSections count] == 2) {
-        _existingSection = [_conflictedSections firstObject][@"sections"][@"section"];
-        _newSection = [_conflictedSections lastObject][@"sections"][@"section"];
+        _existingSection = [[NSMutableArray alloc] init];
+//        _existingSection = [_conflictedSections firstObject][@"sections"][@"section"];
+        NSMutableArray *section1 = [_conflictedSections firstObject][@"sections"][@"section"];
+        for (NSDictionary *dict in section1) {
+            for (NSString *sectionName in _modifiedSections) {
+                if ([dict[@"name"][@"text"] integerValue] == [sectionName integerValue]) {
+                    [_existingSection addObject:dict];
+                }
+            }
+        }
+        [_existingSection sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+            if ([obj1[@"name"][@"text"] integerValue] > [obj2[@"name"][@"text"] integerValue]) {
+                return (NSComparisonResult)NSOrderedDescending;
+            }
+            if ([obj1[@"name"][@"text"] integerValue] < [obj2[@"name"][@"text"] integerValue]) {
+                return (NSComparisonResult)NSOrderedAscending;
+            }
+            return (NSComparisonResult)NSOrderedSame;
+        }];
+//        _newSection = [_conflictedSections lastObject][@"sections"][@"section"];
+        _newSection = [[NSMutableArray alloc] init];
+        NSMutableArray *section2 = [_conflictedSections lastObject][@"sections"][@"section"];
+        for (NSDictionary *dict in section2) {
+            for (NSString *sectionName in _modifiedSections) {
+                if ([dict[@"name"][@"text"] integerValue] == [sectionName integerValue]) {
+                    [_newSection addObject:dict];
+                }
+            }
+        }
+        [_newSection sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+            if ([obj1[@"name"][@"text"] integerValue] > [obj2[@"name"][@"text"] integerValue]) {
+                return (NSComparisonResult)NSOrderedDescending;
+            }
+            if ([obj1[@"name"][@"text"] integerValue] < [obj2[@"name"][@"text"] integerValue]) {
+                return (NSComparisonResult)NSOrderedAscending;
+            }
+            return (NSComparisonResult)NSOrderedSame;
+        }];
     }
     
     if ([_existingSection isKindOfClass:[NSDictionary class]] && [_newSection isKindOfClass:[NSDictionary class]]) {
@@ -71,18 +107,6 @@
 }
 
 - (void)saveButtonTapped:(id)sender {
-//    if ([[_lastConflict objectForKey:@"isSelected"] integerValue] == 3) {
-//        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Please select a field" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-//        [alertView show];
-//    } else {
-//        if (!_downloadManager) {
-//            _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
-//        }
-//        NSString *selectedField = [[_lastConflict objectForKey:@"sectionContent"] objectAtIndex:[[_lastConflict objectForKey:@"isSelected"] integerValue]];
-//        NSString *path = [NSString stringWithFormat:@"resolveConflict.php?documentName=%@&timeStamp=%@&%@=%@",_docName,_docTimeStamp,[_lastConflict objectForKey:@"sectionName"],selectedField];
-//        [self showHudWithText:@""];
-//        [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
-//    }
     if ([[_lastExistingConflict objectForKey:@"isSelected"] integerValue] == 3 && [[_lastNewConflict objectForKey:@"isSelected"] integerValue] == 3) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Please select a field" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [alertView show];
@@ -114,15 +138,6 @@
         responseInfo = [[NSString alloc] initWithData:responseInfo encoding:NSUTF8StringEncoding];
     }
     NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
-//    [_conflictedSections removeLastObject];
-//    _lastConflict = [_conflictedSections lastObject];
-//    if (_lastConflict) {
-//        [_lastConflict setObject:@(3) forKey:@"isSelected"];
-//        [_tableView reloadData];
-//    } else {
-////        [self.navigationController popToRootViewControllerAnimated:YES];
-//        [self.navigationController popToViewController:(UIViewController *)_parent animated:YES];
-//    }
     if ([_newSection isKindOfClass:[NSDictionary class]] && [_newSection isKindOfClass:[NSDictionary class]]) {
         _lastNewConflict = nil;
         _lastExistingConflict = nil;

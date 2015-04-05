@@ -12,6 +12,7 @@
 @interface ConflictViewController : UIViewController<UITableViewDelegate, UITableViewDataSource,DocumentViewControllerDelegate,DownloadManagerDelegate>
 
 @property (nonatomic, strong) NSMutableArray *conflictedSections;
+@property (nonatomic, strong) NSArray *modifiedSections;
 @property (nonatomic, strong) NSString *docTimeStamp;
 @property (nonatomic, strong) NSString *docName;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;

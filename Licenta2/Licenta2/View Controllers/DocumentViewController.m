@@ -105,8 +105,17 @@
                     NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
                     [section setObject:isModified forKey:@"isModified"];
                 }
+//                [_sectionText sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+//                    return [obj1[@"name"][@"text"] caseInsensitiveCompare:obj2[@"name"][@"text"] ];
+//                }];
                 [_sectionText sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-                    return [obj1[@"name"][@"text"] caseInsensitiveCompare:obj2[@"name"][@"text"] ];
+                    if ([obj1[@"name"][@"text"] integerValue] > [obj2[@"name"][@"text"] integerValue]) {
+                        return (NSComparisonResult)NSOrderedDescending;
+                    }
+                    if ([obj1[@"name"][@"text"] integerValue] < [obj2[@"name"][@"text"] integerValue]) {
+                        return (NSComparisonResult)NSOrderedAscending;
+                    }
+                    return (NSComparisonResult)NSOrderedSame;
                 }];
             } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
 //                NSMutableDictionary *isModified = _sectionText[@"isModified"];
@@ -378,7 +387,7 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     if ([_sectionText isKindOfClass:[NSArray class]]) {
         if (indexPath.row == [_sectionText count]) {
-            NSMutableDictionary *nameDict = [NSMutableDictionary dictionaryWithObject:[NSString stringWithFormat:@"section%lu",[_sectionText count] + 1] forKey:@"text"];
+            NSMutableDictionary *nameDict = [NSMutableDictionary dictionaryWithObject:[NSString stringWithFormat:@"%lu",[_sectionText count] + 1] forKey:@"text"];
             NSMutableDictionary *timeStampDict = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
             NSMutableDictionary *valueDict = [NSMutableDictionary dictionaryWithObject:@"" forKey:@"text"];
             NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
@@ -391,7 +400,7 @@
         _sectionText = nil;
         _sectionText = [[NSMutableArray alloc] initWithObjects:sectionText, nil];
         
-        NSDictionary *nameDict = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"section%lu",[_sectionText count] + 1] forKey:@"text"];
+        NSDictionary *nameDict = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"%lu",[_sectionText count] + 1] forKey:@"text"];
         NSDictionary *timeStampDict = [NSDictionary dictionaryWithObject:@(0) forKey:@"text"];
         NSDictionary *valueDict = [NSDictionary dictionaryWithObject:@"" forKey:@"text"];
         NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
@@ -442,17 +451,19 @@
             [self.navigationController popViewControllerAnimated:YES];
             return;
         } else {
-            [self.navigationController popViewControllerAnimated:YES];
-            return;
+//            [self.navigationController popViewControllerAnimated:YES];
+//            return;
             NSMutableArray *conflictedSections = [[NSMutableArray alloc] init];
             NSError *error = nil;
             NSDictionary *existingSection = [XMLReader dictionaryForXMLString:responseDict[@"existing"] error:&error];
             NSDictionary *newSection = [XMLReader dictionaryForXMLString:responseDict[@"new"] error:&error];
+            NSArray *modifiedSections = responseDict[@"modifiedSections"];
             if (existingSection && newSection) {
                 [conflictedSections addObject:existingSection];
                 [conflictedSections addObject:newSection];
                 ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
                 conflictViewController.conflictedSections = conflictedSections;
+                conflictViewController.modifiedSections = modifiedSections;
                 conflictViewController.docTimeStamp = _docTimeStamp;
                 conflictViewController.docName = _docName;
                 conflictViewController.parent = _parent;
