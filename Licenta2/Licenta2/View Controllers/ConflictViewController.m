@@ -32,42 +32,58 @@
     if (_conflictedSections && [_conflictedSections count] == 2) {
         _existingSection = [[NSMutableArray alloc] init];
 //        _existingSection = [_conflictedSections firstObject][@"sections"][@"section"];
-        NSMutableArray *section1 = [_conflictedSections firstObject][@"sections"][@"section"];
-        for (NSDictionary *dict in section1) {
+        id section1 = [_conflictedSections firstObject][@"sections"][@"section"];
+        if ([section1 isKindOfClass:[NSArray class]]) {
+            for (NSDictionary *dict in section1) {
+                for (NSString *sectionName in _modifiedSections) {
+                    if ([dict[@"name"][@"text"] integerValue] == [sectionName integerValue]) {
+                        [_existingSection addObject:dict];
+                    }
+                }
+            }
+            [_existingSection sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+                if ([obj1[@"name"][@"text"] integerValue] > [obj2[@"name"][@"text"] integerValue]) {
+                    return (NSComparisonResult)NSOrderedDescending;
+                }
+                if ([obj1[@"name"][@"text"] integerValue] < [obj2[@"name"][@"text"] integerValue]) {
+                    return (NSComparisonResult)NSOrderedAscending;
+                }
+                return (NSComparisonResult)NSOrderedSame;
+            }];
+        } else if ([section1 isKindOfClass:[NSDictionary class]]) {
             for (NSString *sectionName in _modifiedSections) {
-                if ([dict[@"name"][@"text"] integerValue] == [sectionName integerValue]) {
-                    [_existingSection addObject:dict];
+                if ([section1[@"name"][@"text"] integerValue] == [sectionName integerValue]) {
+                    [_existingSection addObject:section1];
                 }
             }
         }
-        [_existingSection sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-            if ([obj1[@"name"][@"text"] integerValue] > [obj2[@"name"][@"text"] integerValue]) {
-                return (NSComparisonResult)NSOrderedDescending;
-            }
-            if ([obj1[@"name"][@"text"] integerValue] < [obj2[@"name"][@"text"] integerValue]) {
-                return (NSComparisonResult)NSOrderedAscending;
-            }
-            return (NSComparisonResult)NSOrderedSame;
-        }];
 //        _newSection = [_conflictedSections lastObject][@"sections"][@"section"];
         _newSection = [[NSMutableArray alloc] init];
-        NSMutableArray *section2 = [_conflictedSections lastObject][@"sections"][@"section"];
-        for (NSDictionary *dict in section2) {
+        id section2 = [_conflictedSections lastObject][@"sections"][@"section"];
+        if ([section2 isKindOfClass:[NSArray class]]) {
+            for (NSDictionary *dict in section2) {
+                for (NSString *sectionName in _modifiedSections) {
+                    if ([dict[@"name"][@"text"] integerValue] == [sectionName integerValue]) {
+                        [_newSection addObject:dict];
+                    }
+                }
+            }
+            [_newSection sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+                if ([obj1[@"name"][@"text"] integerValue] > [obj2[@"name"][@"text"] integerValue]) {
+                    return (NSComparisonResult)NSOrderedDescending;
+                }
+                if ([obj1[@"name"][@"text"] integerValue] < [obj2[@"name"][@"text"] integerValue]) {
+                    return (NSComparisonResult)NSOrderedAscending;
+                }
+                return (NSComparisonResult)NSOrderedSame;
+            }];
+        } else if ([section2 isKindOfClass:[NSDictionary class]]) {
             for (NSString *sectionName in _modifiedSections) {
-                if ([dict[@"name"][@"text"] integerValue] == [sectionName integerValue]) {
-                    [_newSection addObject:dict];
+                if ([section2[@"name"][@"text"] integerValue] == [sectionName integerValue]) {
+                    [_newSection addObject:section2];
                 }
             }
         }
-        [_newSection sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-            if ([obj1[@"name"][@"text"] integerValue] > [obj2[@"name"][@"text"] integerValue]) {
-                return (NSComparisonResult)NSOrderedDescending;
-            }
-            if ([obj1[@"name"][@"text"] integerValue] < [obj2[@"name"][@"text"] integerValue]) {
-                return (NSComparisonResult)NSOrderedAscending;
-            }
-            return (NSComparisonResult)NSOrderedSame;
-        }];
     }
     
     if ([_existingSection isKindOfClass:[NSDictionary class]] && [_newSection isKindOfClass:[NSDictionary class]]) {
