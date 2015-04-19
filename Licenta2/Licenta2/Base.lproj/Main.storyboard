@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RUO-rX-tQJ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6751" systemVersion="14D131" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RUO-rX-tQJ">
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6736"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -802,6 +801,65 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="n5n-EW-Und" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3570" y="1069"/>
+        </scene>
+        <!--Modified Documents View Controller-->
+        <scene sceneID="BNK-BN-EJF">
+            <objects>
+                <viewController storyboardIdentifier="modifiedDocumentsViewControllerId" id="NIp-1r-TmS" customClass="ModifiedDocumentsViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Mv1-g4-Pge"/>
+                        <viewControllerLayoutGuide type="bottom" id="xrX-w0-PqQ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ys6-el-cde">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="gray_background" translatesAutoresizingMaskIntoConstraints="NO" id="Q4d-D0-MC9">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Some documents(1, 2, 3) have been updated since your last login." lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pTF-AQ-71x">
+                                <rect key="frame" x="16" y="245" width="568" height="110"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="110" id="p5C-Be-bKA"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HWK-Fk-nsH">
+                                <rect key="frame" x="277" y="363" width="46" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="46" id="N2h-9f-8RI"/>
+                                </constraints>
+                                <state key="normal" title="OK">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="closeButtonTapped:" destination="NIp-1r-TmS" eventType="touchUpInside" id="ge4-vr-ajJ"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="centerX" secondItem="HWK-Fk-nsH" secondAttribute="centerX" id="2lc-dV-uaF"/>
+                            <constraint firstAttribute="centerY" secondItem="pTF-AQ-71x" secondAttribute="centerY" id="CbD-Bh-27a"/>
+                            <constraint firstItem="pTF-AQ-71x" firstAttribute="leading" secondItem="ys6-el-cde" secondAttribute="leadingMargin" id="IdI-QE-RlV"/>
+                            <constraint firstItem="pTF-AQ-71x" firstAttribute="trailing" secondItem="ys6-el-cde" secondAttribute="trailingMargin" id="OOd-PW-hTr"/>
+                            <constraint firstItem="Q4d-D0-MC9" firstAttribute="top" secondItem="ys6-el-cde" secondAttribute="top" id="Vgn-td-zt5"/>
+                            <constraint firstItem="Q4d-D0-MC9" firstAttribute="leading" secondItem="ys6-el-cde" secondAttribute="leading" id="Y56-iO-7dP"/>
+                            <constraint firstAttribute="centerX" secondItem="pTF-AQ-71x" secondAttribute="centerX" id="cqC-ox-nlM"/>
+                            <constraint firstItem="xrX-w0-PqQ" firstAttribute="top" secondItem="Q4d-D0-MC9" secondAttribute="bottom" id="lnt-07-acr"/>
+                            <constraint firstAttribute="trailing" secondItem="Q4d-D0-MC9" secondAttribute="trailing" id="qIo-6w-Kbo"/>
+                            <constraint firstAttribute="centerY" secondItem="HWK-Fk-nsH" secondAttribute="centerY" constant="-78" id="tND-8z-XEm"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="textLabel" destination="pTF-AQ-71x" id="Z1o-Gw-tEv"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="WKu-Fe-ifD" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4212" y="1069"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="1cb-q8-gWK">

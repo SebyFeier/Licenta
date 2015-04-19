@@ -39,6 +39,7 @@
 		F17FBFDB1A96737600A9B304 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F17FBFDA1A96737600A9B304 /* Images.xcassets */; };
 		F17FBFDE1A96737600A9B304 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = F17FBFDC1A96737600A9B304 /* LaunchScreen.xib */; };
 		F17FBFEA1A96737600A9B304 /* Licenta2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = F17FBFE91A96737600A9B304 /* Licenta2Tests.m */; };
+		F1DDDCD11AE3CA5A002D579D /* ModifiedDocumentsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDDCD01AE3CA5A002D579D /* ModifiedDocumentsViewController.m */; };
 		F1F758131A96787D002F4094 /* Licenta2.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F1F758111A96787D002F4094 /* Licenta2.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
@@ -119,6 +120,8 @@
 		F17FBFE31A96737600A9B304 /* Licenta2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Licenta2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F17FBFE81A96737600A9B304 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F17FBFE91A96737600A9B304 /* Licenta2Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Licenta2Tests.m; sourceTree = "<group>"; };
+		F1DDDCCF1AE3CA5A002D579D /* ModifiedDocumentsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModifiedDocumentsViewController.h; sourceTree = "<group>"; };
+		F1DDDCD01AE3CA5A002D579D /* ModifiedDocumentsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModifiedDocumentsViewController.m; sourceTree = "<group>"; };
 		F1F758121A96787D002F4094 /* Licenta.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Licenta.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -222,6 +225,8 @@
 				F13B5F6F1A967412009664B8 /* RequestsViewController.m */,
 				F13B5F701A967412009664B8 /* UsersViewController.h */,
 				F13B5F711A967412009664B8 /* UsersViewController.m */,
+				F1DDDCCF1AE3CA5A002D579D /* ModifiedDocumentsViewController.h */,
+				F1DDDCD01AE3CA5A002D579D /* ModifiedDocumentsViewController.m */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -449,6 +454,7 @@
 				F13B5F791A967412009664B8 /* LogoutTableViewCell.m in Sources */,
 				F13B5F7D1A967412009664B8 /* DownloadManager.m in Sources */,
 				F13B5F821A967412009664B8 /* DocumentsViewController.m in Sources */,
+				F1DDDCD11AE3CA5A002D579D /* ModifiedDocumentsViewController.m in Sources */,
 				F13B5F831A967412009664B8 /* DocumentViewController.m in Sources */,
 				F13B5F7F1A967412009664B8 /* UIViewController+ProgressHud.m in Sources */,
 				F13B5F861A967412009664B8 /* RequestsViewController.m in Sources */,

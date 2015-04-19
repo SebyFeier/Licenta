@@ -21,6 +21,7 @@
 #define kCheckRequests @"Check Requests"
 #define kSendDeviceRequest @"Send Device Request"
 #define kCheckDeviceRequest @"Check Device Requests"
+#define kGetNotifications @"Get Notifications"
 
 @interface LoginScreenViewController ()
 
@@ -30,6 +31,7 @@
     DownloadManager *_downloadManager;
     NSString *_userId;
     NSString *_userIdForDevice;
+    NSDictionary *_loggedInUser;
 }
 
 - (void)viewDidLoad {
@@ -86,7 +88,7 @@
         uniqueIdentifier = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     }
     if ([[[UIDevice currentDevice] name] isEqualToString:@"iPhone Simulator"]) {
-        uniqueIdentifier = @"1234567890";
+        uniqueIdentifier = @"123456789";
     }
     NSString *path = [NSString stringWithFormat:@"username=%@&password=%@&deviceUdid=%@&deviceName=%@",_usernameTextField.text, [self encodeMediaUrl:_passwordTextField.text],uniqueIdentifier,[[UIDevice currentDevice] name]];
     NSString *serverUrl = @"";
@@ -116,7 +118,7 @@
             uniqueIdentifier = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
         }
         if ([[[UIDevice currentDevice] name] isEqualToString:@"iPhone Simulator"]) {
-            uniqueIdentifier = @"1234567890";
+            uniqueIdentifier = @"123456789";
         }
         NSString *path = [NSString stringWithFormat:@"sendDeviceRequest.php?userId=%@&deviceUdid=%@",_userIdForDevice, uniqueIdentifier];
         _downloadManager.callType = kSendDeviceRequest;
@@ -141,6 +143,20 @@
             [self getDocuments];
         } else if ([downloadManager.callType isEqualToString:kCheckDeviceRequest]) {
             [self checkRequest];
+        } else if ([downloadManager.callType isEqualToString:kGetNotifications]) {
+//            [self checkRequest];
+            if (!_downloadManager) {
+                _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+            }
+            NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+            [userDefaults setObject:_loggedInUser[@"username"] forKey:@"username"];
+            [UserInfoModel saveUserWithUsername:_loggedInUser[@"username"] andUserId:_loggedInUser[@"userID"]];
+            User *currentUser = [UserInfoModel retrieveCurrentUser];
+            [userDefaults synchronize];
+            _downloadManager.callType = kCheckDeviceRequest;
+            NSString *path = [NSString stringWithFormat:@"checkDeviceRequests.php?userId=%@",currentUser.userID];
+            [self showHudWithText:@""];
+            [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 
         }
     } else {
@@ -158,17 +174,12 @@
                 }
             } else {
                 NSDictionary *user = [[responseDict objectForKey:@"users"] firstObject];
+                _loggedInUser = user;
                 if (!_downloadManager) {
                     _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
                 }
-                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                [userDefaults setObject:user[@"username"] forKey:@"username"];
-                [UserInfoModel saveUserWithUsername:user[@"username"] andUserId:user[@"userID"]];
-                User *currentUser = [UserInfoModel retrieveCurrentUser];
-                
-                _downloadManager.callType = kCheckDeviceRequest;
-                NSString *path = [NSString stringWithFormat:@"checkDeviceRequests.php?userId=%@",currentUser.userID];
-                [self showHudWithText:@""];
+                NSString *path = [NSString stringWithFormat:@"getNotifications.php?userId=%@",user[@"userID"]];
+                _downloadManager.callType = kGetNotifications;
                 [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
             }
         } else if ([downloadManager.callType isEqualToString:kGetDocuments]) {
@@ -203,10 +214,33 @@
             requests.parent = self;
             requests.requestType = DeviceRequest;
             [self presentViewController:requests animated:YES completion:nil];
+        } else if ([downloadManager.callType isEqualToString:kGetNotifications]) {
+            if ([responseDict isKindOfClass:[NSArray class]]) {
+                ModifiedDocumentsViewController *modifiedDocuments = [self.storyboard instantiateViewControllerWithIdentifier:@"modifiedDocumentsViewControllerId"];
+                modifiedDocuments.delegate = self;
+                modifiedDocuments.modifiedDocuments = (NSArray *)responseDict;
+                [self.navigationController presentViewController:modifiedDocuments animated:YES completion:nil];
+            }
         }
     }
     
     NSLog(@"%@",responseDict);
+}
+
+- (void)closeButtonTapped {
+    if (!_downloadManager) {
+        _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+    }
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:_loggedInUser[@"username"] forKey:@"username"];
+    [UserInfoModel saveUserWithUsername:_loggedInUser[@"username"] andUserId:_loggedInUser[@"userID"]];
+    User *currentUser = [UserInfoModel retrieveCurrentUser];
+    [userDefaults synchronize];
+    _downloadManager.callType = kCheckDeviceRequest;
+    NSString *path = [NSString stringWithFormat:@"checkDeviceRequests.php?userId=%@",currentUser.userID];
+    [self showHudWithText:@""];
+    [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+
 }
 
 - (void)createAlertViewWithTitle:(NSString *)title andMessage:(NSString *)message {

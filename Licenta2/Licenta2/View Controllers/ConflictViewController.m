@@ -13,6 +13,9 @@
 #import "UIViewController+ProgressHud.h"
 #import "NSString+JSON.h"
 
+#define kResolveConflict @"Resolve Conflict"
+#define kAddNotifications @"Add Notifications"
+
 @interface ConflictViewController ()
 
 @end
@@ -138,6 +141,7 @@
         }
         NSString *json = [NSString createJSONFromObject:selectedSection];
         NSString *path = [NSString stringWithFormat:@"resolveConflict.php?documentName=%@&timeStamp=%@&section=%@",_docName,_docTimeStamp,json];
+        _downloadManager.callType = kResolveConflict;
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }
 }
@@ -154,20 +158,29 @@
         responseInfo = [[NSString alloc] initWithData:responseInfo encoding:NSUTF8StringEncoding];
     }
     NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
-    if ([_newSection isKindOfClass:[NSDictionary class]] && [_newSection isKindOfClass:[NSDictionary class]]) {
-        _lastNewConflict = nil;
-        _lastExistingConflict = nil;
-    } else if ([_existingSection isKindOfClass:[NSArray class]] && [_newSection isKindOfClass:[NSArray class]]) {
-        [_existingSection removeLastObject];
-        [_newSection removeLastObject];
-        _lastExistingConflict = [_existingSection lastObject];
-        _lastNewConflict = [_newSection lastObject];
-    }
-    if (_lastExistingConflict && _lastNewConflict) {
-        [_lastExistingConflict setObject:@(3) forKey:@"isSelected"];
-        [_lastNewConflict setObject:@(3) forKey:@"isSelected"];
-        [_tableView reloadData];
-    } else {
+    if ([downloadManager.callType isEqualToString:kResolveConflict]) {
+        if ([_newSection isKindOfClass:[NSDictionary class]] && [_newSection isKindOfClass:[NSDictionary class]]) {
+            _lastNewConflict = nil;
+            _lastExistingConflict = nil;
+        } else if ([_existingSection isKindOfClass:[NSArray class]] && [_newSection isKindOfClass:[NSArray class]]) {
+            [_existingSection removeLastObject];
+            [_newSection removeLastObject];
+            _lastExistingConflict = [_existingSection lastObject];
+            _lastNewConflict = [_newSection lastObject];
+        }
+        if (_lastExistingConflict && _lastNewConflict) {
+            [_lastExistingConflict setObject:@(3) forKey:@"isSelected"];
+            [_lastNewConflict setObject:@(3) forKey:@"isSelected"];
+            [_tableView reloadData];
+        } else {
+            if (!_downloadManager) {
+                _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+            }
+            NSString *path = [NSString stringWithFormat:@"addNotifications.php?documentName=%@&username=%@",_docName, [[NSUserDefaults standardUserDefaults] valueForKey:@"username"]];
+            _downloadManager.callType = kAddNotifications;
+            [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+        }
+    } else if ([downloadManager.callType isEqualToString:kAddNotifications]) {
         [self.navigationController popToViewController:(UIViewController *)_parent animated:YES];
     }
 }

@@ -19,6 +19,7 @@
 
 #define kSendRequest @"Send Request"
 #define kUpdateDocument @"Update Document"
+#define kAddNotifications @"Add Notifications"
 
 @interface DocumentViewController ()
 
@@ -448,8 +449,13 @@
     NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
     if ([downloadManager.callType isEqualToString:kUpdateDocument]) {
         if ([[responseDict objectForKey:@"status"] isEqualToString:@"OK"]) {
-            [self.navigationController popViewControllerAnimated:YES];
-            return;
+            if (!_downloadManager) {
+                _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+            }
+            NSString *path = [NSString stringWithFormat:@"addNotifications.php?documentName=%@&username=%@",_docName, [[NSUserDefaults standardUserDefaults] valueForKey:@"username"]];
+            _downloadManager.callType = kAddNotifications;
+            [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+
         } else {
 //            [self.navigationController popViewControllerAnimated:YES];
 //            return;
@@ -478,6 +484,9 @@
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Request already sent" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
             [alert show];
         }
+    } else if ([downloadManager.callType isEqualToString:kAddNotifications]) {
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
     }
 }
 

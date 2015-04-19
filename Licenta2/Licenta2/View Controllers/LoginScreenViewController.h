@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "DownloadManager.h"
+#import "ModifiedDocumentsViewController.h"
 
-@interface LoginScreenViewController : UIViewController<DownloadManagerDelegate, UITextFieldDelegate, UIAlertViewDelegate>
+@interface LoginScreenViewController : UIViewController<DownloadManagerDelegate, UITextFieldDelegate, UIAlertViewDelegate, ModifiedDocumentDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *usernameTextField;
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
 - (IBAction)cancelButtonTapped:(id)sender;
