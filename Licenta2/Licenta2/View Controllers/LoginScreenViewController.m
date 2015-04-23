@@ -25,6 +25,9 @@
 
 @interface LoginScreenViewController ()
 
+@property (weak, nonatomic) IBOutlet UIButton *loginRegisterButton;
+@property (weak, nonatomic) IBOutlet UITextField *usernameTextField;
+@property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
 @end
 
 @implementation LoginScreenViewController {

@@ -11,11 +11,8 @@
 #import "ModifiedDocumentsViewController.h"
 
 @interface LoginScreenViewController : UIViewController<DownloadManagerDelegate, UITextFieldDelegate, UIAlertViewDelegate, ModifiedDocumentDelegate>
-@property (weak, nonatomic) IBOutlet UITextField *usernameTextField;
-@property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
 - (IBAction)cancelButtonTapped:(id)sender;
 - (IBAction)loginRegisterButtonTapped:(id)sender;
-@property (weak, nonatomic) IBOutlet UIButton *loginRegisterButton;
 
 @property (nonatomic, assign) BOOL isLogin;
 

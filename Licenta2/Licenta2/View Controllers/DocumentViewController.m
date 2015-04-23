@@ -452,7 +452,7 @@
             if (!_downloadManager) {
                 _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
             }
-            NSString *path = [NSString stringWithFormat:@"addNotifications.php?documentName=%@&username=%@",_docName, [[NSUserDefaults standardUserDefaults] valueForKey:@"username"]];
+            NSString *path = [NSString stringWithFormat:@"addNotifications.php?documentName=%@&username=%@",_documentId, [[NSUserDefaults standardUserDefaults] valueForKey:@"username"]];
             _downloadManager.callType = kAddNotifications;
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 
