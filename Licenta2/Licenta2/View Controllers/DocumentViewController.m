@@ -20,6 +20,7 @@
 #define kSendRequest @"Send Request"
 #define kUpdateDocument @"Update Document"
 #define kAddNotifications @"Add Notifications"
+#define kGetAlerts @"Get Alerts"
 
 @interface DocumentViewController ()
 
@@ -38,11 +39,11 @@
     NSTimer *_timer;
     BOOL _isTyping;
     id _sectionText;
+    UIView *_alertView;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     if (_canEdit) {
         UIImage *image = [UIImage imageNamed:@"save-button"];
@@ -127,7 +128,7 @@
         }
     }
     self.navigationItem.title = _docName;
-//    [self startTimer];
+    [self startTimer];
     _showTable = YES;
     [_messageView removeFromSuperview];
     [_messageLabel removeFromSuperview];
@@ -137,7 +138,7 @@
 
 - (void)startTimer {
     [_timer invalidate];
-    _timer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(timerUpdateFired) userInfo:nil repeats:YES];
+    _timer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(timerUpdateFired) userInfo:nil repeats:YES];
     [_timer fire];
 }
 
@@ -146,8 +147,15 @@
 }
 
 - (void)timerUpdateFired {
-    _isTyping = !_isTyping;
-    [_tableView reloadData];
+//    _isTyping = !_isTyping;
+//    [_tableView reloadData];
+    if (!_downloadManager) {
+        _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+    }
+    User *user = [UserInfoModel retrieveCurrentUser];
+    NSString *path = [NSString stringWithFormat:@"getAlerts.php?userId=%@&documentId=%@",user.username,_documentId];
+    _downloadManager.callType = kGetAlerts;
+    [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -190,7 +198,7 @@
         NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970];
         NSString *stringInterval = [NSString stringWithFormat:@"%f",timeStamp];
         NSString *lastTimeStamp = [[stringInterval componentsSeparatedByString:@"."] firstObject];
-        NSString *path = [NSString stringWithFormat:@"updateDocument.php?documentName=%@&timeStamp=%@&initialTimeStamp=%@&json=%@&type=%@&modifiedBy=%@",_docName, lastTimeStamp, _docTimeStamp, json, type, user.userID];
+        NSString *path = [NSString stringWithFormat:@"updateDocument.php?documentName=%@&timeStamp=%@&initialTimeStamp=%@&json=%@&type=%@&modifiedBy=%@",_docName, lastTimeStamp, _docTimeStamp, json, type, user.username];
         _downloadManager.callType = kUpdateDocument;
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }
@@ -488,6 +496,11 @@
     } else if ([downloadManager.callType isEqualToString:kAddNotifications]) {
         [self.navigationController popViewControllerAnimated:YES];
         return;
+    } else if ([downloadManager.callType isEqualToString:kGetAlerts]) {
+        NSLog(@"%@",responseDict);
+        if (responseDict) {
+            //TODO: DISPLAY ALERTS
+        }
     }
 }
 
