@@ -25,6 +25,7 @@
 #define kGetMoreDocuments @"Get More Documents"
 #define kDeleteDocument @"Delete Document"
 #define kSearchDocuments @"Search Documents"
+#define kGetDocuments @"Get Documents"
 
 #define kDeleteDocumentTag 999
 #define kSendRequestTag 998
@@ -38,6 +39,7 @@
     NSIndexPath *_deletedIndexPath;
     NSMutableArray *_tempDocuments;
     BOOL _isSearched;
+    NSTimer *_timer;
 }
 
 /*
@@ -74,6 +76,30 @@
     
     self.navigationItem.hidesBackButton = YES;
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    _timer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(updateDocuments) userInfo:nil repeats:YES];
+    [_timer fire];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    [_timer invalidate];
+    _timer = nil;
+}
+
+- (void)updateDocuments {
+    if (!_downloadManager) {
+        _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+    }
+    User *currentUser = [UserInfoModel retrieveCurrentUser];
+    NSString *path = [NSString stringWithFormat:@"getAllDocuments.php?userId=%@&page=1",currentUser.userID];
+    _downloadManager.callType = kGetDocuments;
+    [self showHudWithText:@""];
+    [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+}
+
 
 - (void)optionsButtonTapped:(id)sender {
     if (!_downloadManager) {
@@ -227,6 +253,9 @@
             [_documentsTableView reloadData];
             [self.view endEditing:YES];
         }
+    } else if ([downloadManager.callType isEqualToString:kGetDocuments]) {
+        _documents = [responseDict objectForKey:@"documents"];
+        [_documentsTableView reloadData];
     }
 }
 //
