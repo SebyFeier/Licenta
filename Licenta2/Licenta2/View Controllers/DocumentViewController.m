@@ -166,6 +166,7 @@
     
     //TODO: THIS HAS TO BE REMOVED
     NSString *type = @"";
+    User *user = [UserInfoModel retrieveCurrentUser];
     id updatedSections = nil;
     if ([_sectionText isKindOfClass:[NSArray class]]) {
         type = @"array";
@@ -189,7 +190,7 @@
         NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970];
         NSString *stringInterval = [NSString stringWithFormat:@"%f",timeStamp];
         NSString *lastTimeStamp = [[stringInterval componentsSeparatedByString:@"."] firstObject];
-        NSString *path = [NSString stringWithFormat:@"updateDocument.php?documentName=%@&timeStamp=%@&initialTimeStamp=%@&json=%@&type=%@",_docName, lastTimeStamp, _docTimeStamp, json, type];
+        NSString *path = [NSString stringWithFormat:@"updateDocument.php?documentName=%@&timeStamp=%@&initialTimeStamp=%@&json=%@&type=%@&modifiedBy=%@",_docName, lastTimeStamp, _docTimeStamp, json, type, user.userID];
         _downloadManager.callType = kUpdateDocument;
         [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
     }
