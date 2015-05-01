@@ -139,14 +139,16 @@
     }
     NSDictionary *docDetails = _documents[indexPath.row];
     [cell updateCell:docDetails];
-    if (indexPath.row == _documents.count - 3 && !_isSearched) {
-//        if (!_downloadManager) {
-//            _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
-//        }
-//        _downloadManager.callType = kGetMoreDocuments;
-//        User *currentUser = [UserInfoModel retrieveCurrentUser];
-//        NSString *path = [NSString stringWithFormat:@"getAllDocuments.php?userId=%@&page=%ld",currentUser.userID, _pageNumber++];
-//        [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+    if (_documents.count > 10) {
+        if (indexPath.row == _documents.count - 3 && !_isSearched) {
+            if (!_downloadManager) {
+                _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+            }
+            _downloadManager.callType = kGetMoreDocuments;
+            User *currentUser = [UserInfoModel retrieveCurrentUser];
+            NSString *path = [NSString stringWithFormat:@"getAllDocuments.php?userId=%@&page=%ld",currentUser.userID, _pageNumber++];
+            [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+        }
     }
     
     return cell;
@@ -267,7 +269,6 @@
         _documents = [[NSMutableArray alloc] init];
     }
     [_documents addObject:document];
-    [_documentsTableView reloadData];
     
 }
 
