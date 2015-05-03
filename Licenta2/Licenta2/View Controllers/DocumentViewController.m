@@ -21,6 +21,7 @@
 #define kUpdateDocument @"Update Document"
 #define kAddNotifications @"Add Notifications"
 #define kGetAlerts @"Get Alerts"
+#define kGetDocument @"Get Document"
 
 @interface DocumentViewController ()
 
@@ -36,10 +37,14 @@
     UIView *_messageView;
     UILabel *_messageLabel;
     BOOL _showTable;
-    NSTimer *_timer;
+    NSTimer *_alertTimer;
+    NSTimer *_updateTimer;
     BOOL _isTyping;
     id _sectionText;
+    id _updatedText;
     UIView *_alertView;
+    NSMutableArray *_conflictedSections;
+    NSMutableArray *_modifiedSections;
 }
 
 - (void)viewDidLoad {
@@ -128,7 +133,8 @@
         }
     }
     self.navigationItem.title = _docName;
-    [self startTimer];
+    [self startAlertTimer];
+    [self startUpdateTimer];
     _showTable = YES;
     [_messageView removeFromSuperview];
     [_messageLabel removeFromSuperview];
@@ -136,19 +142,27 @@
     [_tableView reloadData];
 }
 
-- (void)startTimer {
-    [_timer invalidate];
-    _timer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(timerUpdateFired) userInfo:nil repeats:YES];
-    [_timer fire];
+- (void)startAlertTimer {
+    [_alertTimer invalidate];
+    _alertTimer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(alertTimerFired) userInfo:nil repeats:YES];
+    [_alertTimer fire];
 }
 
-- (void)stopTimer {
-    [_timer invalidate];
+- (void)startUpdateTimer {
+    [_updateTimer invalidate];
+    _updateTimer = [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(updateTimerFired) userInfo:nil repeats:YES];
+    [_updateTimer fire];
 }
 
-- (void)timerUpdateFired {
-//    _isTyping = !_isTyping;
-//    [_tableView reloadData];
+- (void)stopUpdateTimer {
+    [_updateTimer invalidate];
+}
+
+- (void)stopAlertTimer {
+    [_alertTimer invalidate];
+}
+
+- (void)alertTimerFired {
     if (!_downloadManager) {
         _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
     }
@@ -158,9 +172,23 @@
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
 
+- (void)updateTimerFired {
+    [self performSelector:@selector(downloadDocument) withObject:nil afterDelay:2];
+}
+
+- (void)downloadDocument {
+    if (!_downloadManager) {
+        _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+    }
+    NSString *path = [NSString stringWithFormat:@"getDocument.php?documentName=%@",_docName];
+    _downloadManager.callType = kGetDocument;
+    [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [self stopTimer];
+    [self stopAlertTimer];
+    [self stopUpdateTimer];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -206,6 +234,8 @@
 
 - (void)backButtonTapped:(id)sender {
     [self.view endEditing:YES];
+    [self stopUpdateTimer];
+    [self stopAlertTimer];
     [self.navigationController popViewControllerAnimated:YES];
 }
                             
@@ -438,6 +468,7 @@
         }
     } else {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:@"You do not have permission to edit this document. Send request?" delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
+        alertView.tag = 999;
         [alertView show];
 
     }
@@ -466,8 +497,6 @@
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 
         } else {
-//            [self.navigationController popViewControllerAnimated:YES];
-//            return;
             NSMutableArray *conflictedSections = [[NSMutableArray alloc] init];
             NSError *error = nil;
             NSDictionary *existingSection = [XMLReader dictionaryForXMLString:responseDict[@"existing"] error:&error];
@@ -501,19 +530,68 @@
         if (responseDict) {
             //TODO: DISPLAY ALERTS
         }
+    } else if ([downloadManager.callType isEqualToString:kGetDocument]) {
+        NSError *error;
+        NSDictionary *documentSections = [XMLReader dictionaryForXMLString:[[responseDict[@"documents"] firstObject] objectForKey:@"sectionText"] error:&error];
+        _updatedText = documentSections[@"sections"][@"section"];
+        NSMutableArray *existingConflicted = [[NSMutableArray alloc] init];
+        NSMutableArray *updatedConflicted = [[NSMutableArray alloc] init];
+        _modifiedSections = [[NSMutableArray alloc] init];
+        if ([_updatedText isKindOfClass:[NSArray class]] && [_sectionText isKindOfClass:[NSArray class]]) {
+            for (NSDictionary *existing in _sectionText) {
+                for (NSDictionary *updated in _updatedText) {
+                    if ([existing[@"name"][@"text"] isEqualToString:updated[@"name"][@"text"]]) {
+                        if (![existing[@"value"][@"text"] isEqualToString:updated[@"value"][@"text"]]) {
+                            [existingConflicted addObject:existing];
+                            [updatedConflicted addObject:updated];
+                            [_modifiedSections addObject:existing[@"name"][@"text"]];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if ([existingConflicted count] && [updatedConflicted count]) {
+            NSDictionary *existing = [NSDictionary dictionaryWithObject:existingConflicted forKey:@"section"];
+            NSDictionary *existingConflict = [NSDictionary dictionaryWithObject:existing forKey:@"sections"];
+            NSDictionary *updated = [NSDictionary dictionaryWithObject:updatedConflicted forKey:@"section"];
+            NSDictionary *updatedConflict = [NSDictionary dictionaryWithObject:updated forKey:@"sections"];
+            _conflictedSections = [NSMutableArray arrayWithObjects:existingConflict, updatedConflict, nil];
+            if ([_conflictedSections count] == 2) {
+                [self stopUpdateTimer];
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Important" message:@"There are some conflicts on the sections that you updated.Do you want to resolve them now?" delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
+                alert.tag = 888;
+                [alert show];
+            }
+        }
+        
     }
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (buttonIndex != [alertView cancelButtonIndex]) {
-        if (!_downloadManager) {
-            _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+    if (alertView.tag == 999) {
+        if (buttonIndex != [alertView cancelButtonIndex]) {
+            if (!_downloadManager) {
+                _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+            }
+            _downloadManager.callType = kSendRequest;
+            User *currentUser = [UserInfoModel retrieveCurrentUser];
+            NSString *path = [NSString stringWithFormat:@"sendRequest.php?createdBy=%@&userId=%@&documentId=%@",_createdBy,currentUser.userID,_documentId];
+            [self showHudWithText:@""];
+            [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
         }
-        _downloadManager.callType = kSendRequest;
-        User *currentUser = [UserInfoModel retrieveCurrentUser];
-        NSString *path = [NSString stringWithFormat:@"sendRequest.php?createdBy=%@&userId=%@&documentId=%@",_createdBy,currentUser.userID,_documentId];
-        [self showHudWithText:@""];
-        [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
+    } else if (alertView.tag == 888) {
+        if (buttonIndex != [alertView cancelButtonIndex]) {
+            ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
+            conflictViewController.conflictedSections = _conflictedSections;
+            conflictViewController.modifiedSections = _modifiedSections;
+            conflictViewController.docTimeStamp = _docTimeStamp;
+            conflictViewController.docName = _docName;
+            conflictViewController.parent = _parent;
+            [self.navigationController pushViewController:conflictViewController animated:YES];
+        } else {
+            [self startUpdateTimer];
+        }
     }
 }
 

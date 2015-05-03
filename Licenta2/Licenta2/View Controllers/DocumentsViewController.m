@@ -96,7 +96,7 @@
     User *currentUser = [UserInfoModel retrieveCurrentUser];
     NSString *path = [NSString stringWithFormat:@"getAllDocuments.php?userId=%@&page=1",currentUser.userID];
     _downloadManager.callType = kGetDocuments;
-    [self showHudWithText:@""];
+//    [self showHudWithText:@""];
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
 
