@@ -22,7 +22,7 @@
 #define kAddNotifications @"Add Notifications"
 #define kGetAlerts @"Get Alerts"
 #define kGetDocument @"Get Document"
-
+#define kLastCall @"Last Call"
 @interface DocumentViewController ()
 
 @end
@@ -181,6 +181,7 @@
         _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
     }
     NSString *path = [NSString stringWithFormat:@"getDocument.php?documentName=%@",_docName];
+    [self.view endEditing:YES];
     _downloadManager.callType = kGetDocument;
     [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
 }
@@ -559,9 +560,52 @@
             _conflictedSections = [NSMutableArray arrayWithObjects:existingConflict, updatedConflict, nil];
             if ([_conflictedSections count] == 2) {
                 [self stopUpdateTimer];
+                [self.view endEditing:YES];
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Important" message:@"There are some conflicts on the sections that you updated.Do you want to resolve them now?" delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
                 alert.tag = 888;
                 [alert show];
+            }
+        }
+        
+    } else if ([downloadManager.callType isEqualToString:kLastCall]) {
+        NSError *error;
+        NSDictionary *documentSections = [XMLReader dictionaryForXMLString:[[responseDict[@"documents"] firstObject] objectForKey:@"sectionText"] error:&error];
+        _updatedText = documentSections[@"sections"][@"section"];
+        NSMutableArray *existingConflicted = [[NSMutableArray alloc] init];
+        NSMutableArray *updatedConflicted = [[NSMutableArray alloc] init];
+        _modifiedSections = [[NSMutableArray alloc] init];
+        if ([_updatedText isKindOfClass:[NSArray class]] && [_sectionText isKindOfClass:[NSArray class]]) {
+            for (NSDictionary *existing in _sectionText) {
+                for (NSDictionary *updated in _updatedText) {
+                    if ([existing[@"name"][@"text"] isEqualToString:updated[@"name"][@"text"]]) {
+                        if (![existing[@"value"][@"text"] isEqualToString:updated[@"value"][@"text"]]) {
+                            [existingConflicted addObject:existing];
+                            [updatedConflicted addObject:updated];
+                            [_modifiedSections addObject:existing[@"name"][@"text"]];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if ([existingConflicted count] && [updatedConflicted count]) {
+            NSDictionary *existing = [NSDictionary dictionaryWithObject:existingConflicted forKey:@"section"];
+            NSDictionary *existingConflict = [NSDictionary dictionaryWithObject:existing forKey:@"sections"];
+            NSDictionary *updated = [NSDictionary dictionaryWithObject:updatedConflicted forKey:@"section"];
+            NSDictionary *updatedConflict = [NSDictionary dictionaryWithObject:updated forKey:@"sections"];
+            _conflictedSections = [NSMutableArray arrayWithObjects:existingConflict, updatedConflict, nil];
+            if ([_conflictedSections count] == 2) {
+                [self stopUpdateTimer];
+//                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Important" message:@"There are some conflicts on the sections that you updated.Do you want to resolve them now?" delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
+//                alert.tag = 888;
+//                [alert show];
+                ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
+                conflictViewController.conflictedSections = _conflictedSections;
+                conflictViewController.modifiedSections = _modifiedSections;
+                conflictViewController.docTimeStamp = _docTimeStamp;
+                conflictViewController.docName = _docName;
+                conflictViewController.parent = _parent;
+                [self.navigationController pushViewController:conflictViewController animated:YES];
             }
         }
         
@@ -582,13 +626,20 @@
         }
     } else if (alertView.tag == 888) {
         if (buttonIndex != [alertView cancelButtonIndex]) {
-            ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
-            conflictViewController.conflictedSections = _conflictedSections;
-            conflictViewController.modifiedSections = _modifiedSections;
-            conflictViewController.docTimeStamp = _docTimeStamp;
-            conflictViewController.docName = _docName;
-            conflictViewController.parent = _parent;
-            [self.navigationController pushViewController:conflictViewController animated:YES];
+//            ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
+//            conflictViewController.conflictedSections = _conflictedSections;
+//            conflictViewController.modifiedSections = _modifiedSections;
+//            conflictViewController.docTimeStamp = _docTimeStamp;
+//            conflictViewController.docName = _docName;
+//            conflictViewController.parent = _parent;
+//            [self.navigationController pushViewController:conflictViewController animated:YES];
+            
+            if (!_downloadManager) {
+                _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
+            }
+            NSString *path = [NSString stringWithFormat:@"getDocument.php?documentName=%@",_docName];
+            _downloadManager.callType = kLastCall;
+            [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
         } else {
             [self startUpdateTimer];
         }
