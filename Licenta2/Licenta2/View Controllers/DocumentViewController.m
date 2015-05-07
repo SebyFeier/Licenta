@@ -45,10 +45,14 @@
     UIView *_alertView;
     NSMutableArray *_conflictedSections;
     NSMutableArray *_modifiedSections;
+    UIView *_alertsView;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _alertsView = [[UIView alloc] initWithFrame:CGRectMake(0, -64, CGRectGetWidth(self.navigationController.view.frame), 64)];
+    _alertsView.backgroundColor = [UIColor lightGrayColor];
+    [self.navigationController.view addSubview:_alertsView];
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     if (_canEdit) {
         UIImage *image = [UIImage imageNamed:@"save-button"];
@@ -481,6 +485,12 @@
     [alertView show];
 }
 
+- (void)removeAlertsView {
+    [UIView animateWithDuration:1 animations:^{
+        [_alertsView setFrame:CGRectMake(0, -64, CGRectGetWidth(self.navigationController.view.frame), 64)];
+    }];
+}
+
 - (void)downloadManager:(DownloadManager *)downloadManager didDownloadSuccessfullyWithInfo:(id)responseInfo {
     [self removeHud];
     if ([responseInfo isKindOfClass:[NSData class]]){
@@ -530,6 +540,11 @@
         NSLog(@"%@",responseDict);
         if (responseDict) {
             //TODO: DISPLAY ALERTS
+            [UIView animateWithDuration:1 animations:^{
+                [_alertsView setFrame:CGRectMake(0, 0, CGRectGetWidth(self.navigationController.view.frame), 64)];
+            } completion:^(BOOL finished) {
+                [self performSelector:@selector(removeAlertsView) withObject:nil afterDelay:4];
+            }];
         }
     } else if ([downloadManager.callType isEqualToString:kGetDocument]) {
         NSError *error;
