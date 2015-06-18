@@ -30,11 +30,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    _lastConflict = [_conflictedSections lastObject];
-//    [_lastConflict setObject:@(3) forKey:@"isSelected"];
     if (_conflictedSections && [_conflictedSections count] == 2) {
         _existingSection = [[NSMutableArray alloc] init];
-//        _existingSection = [_conflictedSections firstObject][@"sections"][@"section"];
         id section1 = [_conflictedSections firstObject][@"sections"][@"section"];
         if ([section1 isKindOfClass:[NSArray class]]) {
             for (NSDictionary *dict in section1) {
@@ -60,7 +57,6 @@
                 }
             }
         }
-//        _newSection = [_conflictedSections lastObject][@"sections"][@"section"];
         _newSection = [[NSMutableArray alloc] init];
         id section2 = [_conflictedSections lastObject][@"sections"][@"section"];
         if ([section2 isKindOfClass:[NSArray class]]) {
@@ -100,10 +96,6 @@
         _lastNewConflict = [_newSection lastObject];
         [_lastNewConflict setObject:@(3) forKey:@"isSelected"];
     }
-    
-    
-    
-//    UIBarButtonItem *saveButton = [[UIBarButtonItem alloc] initWithTitle:@"Save" style:UIBarButtonItemStylePlain target:self action:@selector(saveButtonTapped:)];
 
     UIImage *image = [UIImage imageNamed:@"save-button"];
     CGRect frame = CGRectMake(0, 0, 61, 31);
@@ -111,8 +103,6 @@
     [saveButton setBackgroundImage:image forState:UIControlStateNormal];
     [saveButton addTarget:self action:@selector(saveButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:saveButton];
-    //    UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain
-    //target:self action:@selector(optionsButtonTapped:)];
     self.navigationItem.rightBarButtonItem = barButtonItem;
 //    self.navigationItem.rightBarButtonItem = saveButton;
     
@@ -214,15 +204,8 @@
             [cell.selectionButton setImage:[UIImage imageNamed:@"login-checkboxoff"] forState:UIControlStateNormal];
         }
     }
-//    NSArray *sectionContent = [_lastConflict objectForKey:@"sectionContent"];
-//    cell.textView.text = [sectionContent objectAtIndex:indexPath.row];
     cell.textView.tag = indexPath.row;
     cell.selectedIndexPath = indexPath;
-//    if ([[_lastConflict objectForKey:@"isSelected"] intValue] == indexPath.row) {
-//        [cell.selectionButton setImage:[UIImage imageNamed:@"login-checkboxon"] forState:UIControlStateNormal];
-//    } else {
-//        [cell.selectionButton setImage:[UIImage imageNamed:@"login-checkboxoff"] forState:UIControlStateNormal];
-//    }
     return cell;
 }
 

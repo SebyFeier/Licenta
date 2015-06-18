@@ -112,13 +112,9 @@
             if ([_sectionText isKindOfClass:[NSArray class]]) {
                 for (NSMutableDictionary *section in _sectionText) {
 //
-//                    NSMutableDictionary *isModified = section[@"isModified"];
                     NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
                     [section setObject:isModified forKey:@"isModified"];
                 }
-//                [_sectionText sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-//                    return [obj1[@"name"][@"text"] caseInsensitiveCompare:obj2[@"name"][@"text"] ];
-//                }];
                 [_sectionText sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
                     if ([obj1[@"name"][@"text"] integerValue] > [obj2[@"name"][@"text"] integerValue]) {
                         return (NSComparisonResult)NSOrderedDescending;
@@ -129,8 +125,6 @@
                     return (NSComparisonResult)NSOrderedSame;
                 }];
             } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
-//                NSMutableDictionary *isModified = _sectionText[@"isModified"];
-//                [isModified setObject:@(0) forKey:@"text"];
                 NSMutableDictionary *isModified = [NSMutableDictionary dictionaryWithObject:@(0) forKey:@"text"];
                 [_sectionText setObject:isModified forKey:@"isModified"];
             }
@@ -406,7 +400,6 @@
             cell.delegate = self;
             cell.selectedIndexPath = indexPath;
             cell.textView.tag = indexPath.row;
-//            NSDictionary *sectionDict = [ _docDetails objectAtIndex:indexPath.row];
             cell.textView.text = _sectionText[indexPath.row][@"value"][@"text"];
             cell.textView.delegate = self;
             if (!_isTyping) {
@@ -459,14 +452,12 @@
     if (canEdit) {
         if ([_sectionText isKindOfClass:[NSArray class]]) {
             NSMutableDictionary *section = [_sectionText objectAtIndex:indexPath.row];
-//            [section setObject:@(1) forKey:@"isModified"];
             NSMutableDictionary *isModified = section[@"isModified"];
             [isModified setObject:@(1) forKey:@"text"];
             [section setObject:isModified forKey:@"isModified"];
             [_sectionText replaceObjectAtIndex:indexPath.row withObject:section];
             [_sectionText replaceObjectAtIndex:indexPath.row withObject:section];
         } else if ([_sectionText isKindOfClass:[NSDictionary class]]) {
-//            [_sectionText setObject:@(1) forKey:@"isModified"];
             NSMutableDictionary *isModified = _sectionText[@"isModified"];
             [isModified setObject:@(1) forKey:@"text"];
             [_sectionText setObject:isModified forKey:@"isModified"];
@@ -611,9 +602,6 @@
             _conflictedSections = [NSMutableArray arrayWithObjects:existingConflict, updatedConflict, nil];
             if ([_conflictedSections count] == 2) {
                 [self stopUpdateTimer];
-//                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Important" message:@"There are some conflicts on the sections that you updated.Do you want to resolve them now?" delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
-//                alert.tag = 888;
-//                [alert show];
                 ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
                 conflictViewController.conflictedSections = _conflictedSections;
                 conflictViewController.modifiedSections = _modifiedSections;
@@ -641,13 +629,6 @@
         }
     } else if (alertView.tag == 888) {
         if (buttonIndex != [alertView cancelButtonIndex]) {
-//            ConflictViewController *conflictViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"conflictViewControllerID"];
-//            conflictViewController.conflictedSections = _conflictedSections;
-//            conflictViewController.modifiedSections = _modifiedSections;
-//            conflictViewController.docTimeStamp = _docTimeStamp;
-//            conflictViewController.docName = _docName;
-//            conflictViewController.parent = _parent;
-//            [self.navigationController pushViewController:conflictViewController animated:YES];
             
             if (!_downloadManager) {
                 _downloadManager = [[DownloadManager alloc] initWithDelegate:self];

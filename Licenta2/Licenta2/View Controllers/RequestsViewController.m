@@ -108,14 +108,11 @@
             NSString *permissions = @"";
             NSString *documentIds = @"";
             for (NSDictionary *userInfo in _allDetails) {
-                //                [users addObject:userInfo[@"userID"]];
                 users = [users stringByAppendingPathComponent:userInfo[@"userId"]];
                 documentIds = [documentIds stringByAppendingPathComponent:userInfo[@"documentId"]];
                 if ([userInfo[@"readWrite"] boolValue]) {
-                    //                    [permissions addObject:@"Write"];
                     permissions = [permissions stringByAppendingPathComponent:@"Write"];
                 } else if ([userInfo[@"readOnly"] boolValue]){
-                    //                    [permissions addObject:@"Read"];
                     permissions = [permissions stringByAppendingPathComponent:@"Read"];
                 } else {
                     permissions = [permissions stringByAppendingPathComponent:@"None"];

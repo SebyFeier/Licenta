@@ -7,15 +7,8 @@
 //
 
 #import "AppDelegate.h"
-//#import "Constants.h"
-//#import "User.h"
-//#import "UserInfoModel.h"
-//#import "NSDictionary+JSON.h"
-//
-//#define kLogout @"Logout"
 
 @interface AppDelegate () {
-    //    DownloadManager *_downloadManager;
 }
 
 @end
@@ -51,18 +44,6 @@
     // Saves changes in the application's managed object context before the application terminates.
     [self saveContext];
 }
-
-//- (void)downloadManager:(DownloadManager *)downloadManager didDownloadWithError:(NSError *)error {
-//
-//}
-//
-//- (void)downloadManager:(DownloadManager *)downloadManager didDownloadSuccessfullyWithInfo:(id)responseInfo {
-//    if ([responseInfo isKindOfClass:[NSData class]]){
-//        responseInfo = [[NSString alloc] initWithData:responseInfo encoding:NSUTF8StringEncoding];
-//    }
-//    NSDictionary *responseDict = [NSDictionary createJSONDictionaryFromNSString:responseInfo];
-//
-//}
 
 #pragma mark - Core Data stack
 

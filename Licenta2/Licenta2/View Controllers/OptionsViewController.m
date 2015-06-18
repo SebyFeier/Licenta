@@ -41,8 +41,6 @@
     [backButton setBackgroundImage:image forState:UIControlStateNormal];
     [backButton addTarget:self action:@selector(backButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
-    //    UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain
-    //target:self action:@selector(optionsButtonTapped:)];
     self.navigationItem.leftBarButtonItem = barButtonItem;
     // Do any additional setup after loading the view.
 }
@@ -116,7 +114,6 @@
 }
 
 - (void)logout {
-//    [self.navigationController popToRootViewControllerAnimated:YES];
     if (!_downloadManager) {
         _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
     }

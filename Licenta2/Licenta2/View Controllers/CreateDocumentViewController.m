@@ -36,8 +36,6 @@
         [user setObject:@(0) forKey:@"readOnly"];
         [user setObject:@(0) forKey:@"readWrite"];
     }
-//    UIBarButtonItem *saveButton = [[UIBarButtonItem alloc] initWithTitle:@"Save" style:UIBarButtonItemStylePlain target:self action:@selector(saveButtonTapped:)];
-//    self.navigationItem.rightBarButtonItem = saveButton;
     // Do any additional setup after loading the view.
 }
 
@@ -75,19 +73,14 @@
             return;
         } else {
             _newDocument = [responseDict[@"documents"] firstObject];
-//            NSMutableArray *users = [[NSMutableArray alloc] initWithCapacity:0];
-//            NSMutableArray *permissions = [[NSMutableArray alloc] initWithCapacity:0];
             User *currentUser = [UserInfoModel retrieveCurrentUser];
             NSString *users = currentUser.userID;
             NSString *permissions = @"Write";
             for (NSDictionary *userInfo in _allUsers) {
-//                [users addObject:userInfo[@"userID"]];
                 users = [users stringByAppendingPathComponent:userInfo[@"userID"]];
                 if ([userInfo[@"readWrite"] boolValue]) {
-//                    [permissions addObject:@"Write"];
                     permissions = [permissions stringByAppendingPathComponent:@"Write"];
                 } else if ([userInfo[@"readOnly"] boolValue]){
-//                    [permissions addObject:@"Read"];
                     permissions = [permissions stringByAppendingPathComponent:@"Read"];
                 } else {
                     permissions = [permissions stringByAppendingPathComponent:@"None"];
@@ -100,9 +93,6 @@
             NSString *path = [NSString stringWithFormat:@"givePermissions.php?documentId=%@&user=%@&permission=%@",_newDocument[@"documentId"],users, permissions];
             [self showHudWithText:@""];
             [_downloadManager downloadFromServer:kServerUrl atPath:path withParameters:nil];
-//                    [self dismissViewControllerAnimated:YES completion:^{
-//                        [(DocumentsViewController *)_parentController updateDocumentListWithNewDocument:user];
-//                    }];
             
         }
     } else if ([downloadManager.callType isEqualToString:kGivePermissions]) {

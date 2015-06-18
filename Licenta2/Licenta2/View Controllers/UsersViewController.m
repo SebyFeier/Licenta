@@ -61,13 +61,10 @@
     NSString *users = @"";
     NSString *permissions = @"";
     for (NSDictionary *userInfo in _allUsers) {
-        //                [users addObject:userInfo[@"userID"]];
         users = [users stringByAppendingPathComponent:userInfo[@"userID"]];
         if ([userInfo[@"readWrite"] boolValue]) {
-            //                    [permissions addObject:@"Write"];
             permissions = [permissions stringByAppendingPathComponent:@"Write"];
         } else if ([userInfo[@"readOnly"] boolValue]){
-            //                    [permissions addObject:@"Read"];
             permissions = [permissions stringByAppendingPathComponent:@"Read"];
         } else {
             permissions = [permissions stringByAppendingPathComponent:@"None"];

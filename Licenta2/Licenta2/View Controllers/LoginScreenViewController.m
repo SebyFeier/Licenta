@@ -147,7 +147,6 @@
         } else if ([downloadManager.callType isEqualToString:kCheckDeviceRequest]) {
             [self checkRequest];
         } else if ([downloadManager.callType isEqualToString:kGetNotifications]) {
-//            [self checkRequest];
             if (!_downloadManager) {
                 _downloadManager = [[DownloadManager alloc] initWithDelegate:self];
             }
